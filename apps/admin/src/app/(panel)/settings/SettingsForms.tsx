@@ -38,7 +38,14 @@ export function SettingsForm({ settings, action }: { settings: Settings; action:
         <label className="field">
           <span>Alamat kantor</span>
           <textarea name="address" rows={3} maxLength={300} defaultValue={settings.address} />
+          <small className="hint">Tampil di footer dan dipakai untuk peta lokasi kantor di bagian bawah beranda. Tulis lengkap (jalan, kota) supaya petanya tepat.</small>
           {err.address && <em className="field-error">{err.address}</em>}
+        </label>
+        <label className="field">
+          <span>Link Google Maps kantor (opsional)</span>
+          <input name="mapsUrl" type="url" maxLength={500} defaultValue={settings.mapsUrl} placeholder="https://maps.app.goo.gl/..." />
+          <small className="hint">Buka Google Maps, cari kantor, tekan Bagikan, lalu tempel link-nya di sini. Tombol &quot;Buka di Google Maps&quot; akan menuju titik yang tepat. Kalau kosong, dipakai pencarian dari alamat.</small>
+          {err.mapsUrl && <em className="field-error">{err.mapsUrl}</em>}
         </label>
       </fieldset>
 

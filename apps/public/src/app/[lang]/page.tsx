@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getSettings, listTestimonials, parseHeroImages } from '@enjaz/core';
 import { HeroSlider } from '@/components/HeroSlider';
+import { OfficeMap } from '@/components/OfficeMap';
 import { Services } from '@/components/Services';
 import { Testimonials } from '@/components/Testimonials';
 import { getDict, isLocale } from '@/i18n';
@@ -31,6 +32,7 @@ export default async function Home({ params }: Props) {
     logo: `${SITE_URL}/logo-full.png`,
     ...(settings.email && { email: settings.email }),
     ...(settings.address && { address: settings.address }),
+    ...(settings.mapsUrl && { hasMap: settings.mapsUrl }),
   };
 
   return (
@@ -54,6 +56,9 @@ export default async function Home({ params }: Props) {
       <Services locale={lang} />
 
       <Testimonials items={testimonials} locale={lang} />
+
+      {/* Office location: only when the admin has filled in an address */}
+      <OfficeMap address={settings.address} mapsUrl={settings.mapsUrl} locale={lang} />
     </>
   );
 }

@@ -51,6 +51,7 @@ export const id: Dict = {
   },
   values: { Matic: 'Matic', Manual: 'Manual', 'Lepas kunci': 'Lepas kunci', 'Dengan sopir': 'Dengan sopir', Keduanya: 'Keduanya' },
   testimonials: { title: 'Kata mereka yang sudah menyewa', region: 'Testimoni pelanggan, berhenti saat disorot atau difokuskan', stars: '{n} dari 5 bintang' },
+  office: { title: 'Lokasi kantor', openMaps: 'Buka di Google Maps', mapTitle: 'Peta lokasi kantor PT Enjaz Instan Properti' },
   detail: {
     crumbs: 'Jejak halaman', home: 'Beranda', specs: 'Spesifikasi', amenities: 'Fasilitas', included: 'Sudah termasuk',
     location: 'Lokasi', openMaps: 'Buka di Google Maps', mapTitle: 'Peta lokasi {title}', photoAlt: '{title}, foto {n}',

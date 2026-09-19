@@ -52,6 +52,7 @@ export const en: Dict = {
   },
   values: { Matic: 'Automatic', Manual: 'Manual', 'Lepas kunci': 'Self-drive', 'Dengan sopir': 'With driver', Keduanya: 'Self-drive or with driver' },
   testimonials: { title: 'What our customers say', region: 'Customer reviews, pauses on hover or focus', stars: '{n} out of 5 stars' },
+  office: { title: 'Our office', openMaps: 'Open in Google Maps', mapTitle: 'Map of the PT Enjaz Instan Properti office' },
   detail: {
     crumbs: 'Breadcrumb', home: 'Home', specs: 'Specifications', amenities: 'Amenities', included: 'Included',
     location: 'Location', openMaps: 'Open in Google Maps', mapTitle: 'Map of {title}', photoAlt: '{title}, photo {n}',

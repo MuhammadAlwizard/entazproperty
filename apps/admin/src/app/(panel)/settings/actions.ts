@@ -17,6 +17,7 @@ export async function saveSettingsAction(_prev: FormState, fd: FormData): Promis
   const email = s(fd, 'email');
   const instagram = s(fd, 'instagram');
   const address = s(fd, 'address');
+  const mapsUrl = s(fd, 'mapsUrl');
   const heroImages = parseHeroImages(fd.getAll('heroImages').filter((v): v is string => typeof v === 'string').join('\n'));
   const heroImagesMobile = parseHeroImages(fd.getAll('heroImagesMobile').filter((v): v is string => typeof v === 'string').join('\n'));
 
@@ -25,6 +26,8 @@ export async function saveSettingsAction(_prev: FormState, fd: FormData): Promis
   else if (whatsappLines.length > 5) errors.whatsapp = 'Maksimal 5 nomor.';
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Format email tidak valid.';
   if (address.length > 300) errors.address = 'Alamat maksimal 300 karakter.';
+  if (mapsUrl && !/^https:\/\/[^\s]+$/.test(mapsUrl)) errors.mapsUrl = 'Link peta harus diawali https://';
+  else if (mapsUrl.length > 500) errors.mapsUrl = 'Link peta terlalu panjang.';
   if (instagram.length > 60) errors.instagram = 'Maksimal 60 karakter.';
   if (heroImages.length > MAX_HERO_IMAGES) errors.heroImages = `Maksimal ${MAX_HERO_IMAGES} foto hero.`;
   else if (heroImages.some((u) => !isSafeImage(u))) errors.heroImages = 'Ada foto dengan alamat tidak valid.';
@@ -34,7 +37,7 @@ export async function saveSettingsAction(_prev: FormState, fd: FormData): Promis
   if (Object.keys(errors).length) return { errors, formError: 'Ada isian yang perlu diperbaiki.' };
   // Stored one per line, always as +<country code><number>. The first line is the primary contact.
   const whatsapp = [...new Set(whatsappLines.map((n) => `+${normalizeWhatsapp(n)}`))].join('\n');
-  await saveSettings({ whatsapp, email, instagram, address, heroImages: heroImages.join('\n'), heroImagesMobile: heroImagesMobile.join('\n') });
+  await saveSettings({ whatsapp, email, instagram, address, mapsUrl, heroImages: heroImages.join('\n'), heroImagesMobile: heroImagesMobile.join('\n') });
   await logAudit({ email: session.email, action: 'settings.update', ip: await getClientIp() });
   return { ok: 'Pengaturan tersimpan. Perubahan langsung tampil di website.' };
 }
