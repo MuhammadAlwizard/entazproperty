@@ -22,6 +22,7 @@ export type Dict = {
   plural: Record<PluralKey, Forms>;
   values: Record<string, string>;
   testimonials: { title: string; region: string; stars: string };
+  office: { title: string; openMaps: string; mapTitle: string };
   detail: {
     crumbs: string; home: string; specs: string; amenities: string; included: string; location: string; openMaps: string;
     mapTitle: string; photoAlt: string; morePhotos: string; noPhoto: string; aside: string; book: string; bookRest: string;

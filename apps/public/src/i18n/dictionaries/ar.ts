@@ -58,6 +58,7 @@ export const ar: Dict = {
   },
   values: { Matic: 'أوتوماتيك', Manual: 'يدوي', 'Lepas kunci': 'بدون سائق', 'Dengan sopir': 'مع سائق', Keduanya: 'بدون سائق أو مع سائق' },
   testimonials: { title: 'ماذا يقول عملاؤنا', region: 'آراء العملاء، تتوقف عند التمرير أو التركيز', stars: '{n} من 5 نجوم' },
+  office: { title: 'موقع المكتب', openMaps: 'افتح في خرائط Google', mapTitle: 'خريطة موقع مكتب PT Enjaz Instan Properti' },
   detail: {
     crumbs: 'مسار التنقل', home: 'الرئيسية', specs: 'المواصفات', amenities: 'المرافق', included: 'ما يشمله السعر',
     location: 'الموقع', openMaps: 'افتح في خرائط Google', mapTitle: 'خريطة موقع {title}', photoAlt: '{title}، صورة {n}',
