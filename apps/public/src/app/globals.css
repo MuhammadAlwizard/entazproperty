@@ -209,14 +209,6 @@ a:hover > .frame .photo, a:hover .frame .photo { transform: scale(1.03); }
 
 /* ----------------------------- Testimonials ----------------------------- */
 /* Endless marquee: the track holds two identical halves and slides left by one half. */
-.sec-office { border-top: 1px solid var(--line); }
-.office-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 8fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
-.office-info { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
-.office-info h2 { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 700; color: var(--navy); }
-.office-address { display: flex; gap: 10px; align-items: flex-start; color: var(--ink-soft); font-size: 1.08rem; white-space: pre-line; }
-.office-address svg { flex: none; color: var(--gold-deep); margin-top: 3px; }
-.office-grid iframe { width: 100%; height: clamp(300px, 36vw, 440px); border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
-@media (max-width: 900px) { .office-grid { grid-template-columns: 1fr; } }
 .sec-testi { padding: clamp(56px, 8vw, 104px) 0; border-top: 1px solid var(--line); overflow: hidden; }
 .tst-head { max-width: calc(var(--maxw) + var(--gutter) * 2); margin: 0 auto clamp(28px, 4vw, 48px); padding: 0 var(--gutter); }
 .tst-head h2 { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 700; color: var(--navy); }
@@ -288,6 +280,10 @@ figcaption strong { color: var(--ink); font-size: 0.98rem; }
 .site-footer ul { display: flex; flex-direction: column; gap: 8px; color: var(--ink-soft); font-size: 0.95rem; }
 .site-footer a:hover { color: var(--ink); text-decoration: underline; }
 .footer-address { max-width: 32ch; }
+/* Office map under the logo. Only rendered when the admin has saved an address. */
+.footer-map { margin-top: 26px; max-width: 400px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.site-footer .footer-map h2 { margin-bottom: 0; }
+.footer-map iframe { width: 100%; height: clamp(170px, 20vw, 210px); border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
 .footer-note { max-width: var(--maxw); margin: 40px auto 0; padding-top: 20px; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--ink-soft); }
 
 /* ------------------------------ Responsive ------------------------------ */
