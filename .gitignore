@@ -8,3 +8,6 @@ next-env.d.ts
 
 backups
 *.bak
+
+# Files for deploying (contain secrets and real content): never commit
+deploy
