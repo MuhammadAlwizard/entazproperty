@@ -199,3 +199,14 @@ export async function createAdmin(email: string, passwordHash: string, mustChang
 export async function updateAdminPassword(id: number, passwordHash: string): Promise<void> {
   await exec('UPDATE admins SET password_hash = ?, must_change_password = 0 WHERE id = ?', [passwordHash, id]);
 }
+
+/** Returns false when another admin already uses that email (UNIQUE key). */
+export async function updateAdminEmail(id: number, email: string): Promise<boolean> {
+  try {
+    await exec('UPDATE admins SET email = ? WHERE id = ?', [email.toLowerCase(), id]);
+    return true;
+  } catch (e) {
+    if (isDuplicateError(e)) return false;
+    throw e;
+  }
+}

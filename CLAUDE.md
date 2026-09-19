@@ -90,18 +90,21 @@ Ubah aturan di `core`, bukan di salah satu app, supaya public dan admin selalu s
 - Admin pertama dari `seed` punya `must_change_password = true`: semua halaman dan API terkunci sampai password diganti (`requireAdmin`).
 - `proxy.ts` hanya gerbang pertama (cek tanda tangan cookie tanpa database). **Setiap page, server action, dan route handler wajib memanggil `requireAdmin()` / `getSession()` sendiri.** Layout tidak dijalankan ulang saat navigasi.
 - `/login` tidak pernah dialihkan oleh proxy. Cookie bisa bertanda tangan valid tapi sesinya sudah dicabut, dan pengalihan `/login` <-> `/` akan berputar selamanya.
+- **Ganti email login** (Pengaturan > Email untuk masuk): wajib memasukkan password saat ini, email baru dicek formatnya dan harus unik, perangkat lain dikeluarkan, dan tercatat di log. Email di `ADMIN_EMAIL` hanya dipakai saat admin PERTAMA dibuat, mengubahnya sesudah itu tidak berpengaruh apa pun.
 - **Log aktivitas** (`audit_log`, halaman Aktivitas): login berhasil/gagal/diblokir, semua ubah/hapus konten, upload, ganti password, unduh cadangan.
 
 **Header dan CSP** (`packages/core/src/csp.ts`, dipasang di `proxy.ts` kedua app)
 - CSP berbasis **nonce per permintaan**, `strict-dynamic`, tanpa `unsafe-eval` dan tanpa `unsafe-inline` untuk script/style di produksi (dev lebih longgar karena hot reload). Atribut `style=` tetap diizinkan (`style-src-attr`). Hanya public yang boleh membingkai Google Maps. `frame-ancestors 'none'`, `form-action 'self'`, `object-src 'none'`.
 - Juga: HSTS (produksi), `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`. Admin: `Cache-Control: no-store` dan `robots: disallow /` + `noindex`.
 - Menambah sumber eksternal baru (font, skrip, iframe, gambar dari domain lain) berarti mengubah `buildCsp`. Jangan melonggarkan CSP tanpa alasan.
+- **Hostinger mengganti header `Content-Security-Policy` kita** menjadi `upgrade-insecure-requests` saja (CDN mereka, terverifikasi di server hidup). Karena itu kebijakan yang sama juga ditulis sebagai `<meta http-equiv="Content-Security-Policy">` di `<head>` kedua app. `proxy.ts` menghitungnya (`cspForMeta`, membuang `frame-ancestors`, `report-uri`, dan `sandbox` yang tidak boleh ada di meta) dan meneruskannya lewat header internal `x-csp-meta` ke layout. Header lain (HSTS, `X-Frame-Options`, dst) tetap lewat, jadi framing tetap dicegah. Sudah diuji di browser lewat proksi yang meniru Hostinger: injeksi `onerror` inline diblokir, dan kontrol tanpa CSP membuktikan uji itu bisa mendeteksinya. **Peringatan:** karakter backspace tak terlihat pernah terselip di regex `csp.ts` (salah escape saat menulis file lewat skrip) dan membuat filter tidak bekerja diam-diam. Kalau menulis regex lewat skrip, periksa hasilnya dengan `od -c` atau uji fungsinya langsung.
 
 **Lain-lain**
 - Upload: hanya login, dicek magic bytes (bukan nama/MIME dari klien), maks 5 MB, EXIF dibuang, disajikan dengan CSP sandbox.
 - Pesan error tidak membedakan email tidak ada vs password salah, dan waktu respons disamakan.
 - Secret hanya di `.env` lokal (tidak di-commit) atau environment Hostinger. `.env` lokal hanya berisi nilai pengembangan, **jangan pernah menaruh `DATABASE_URL` produksi di sana**.
-- Belum ada: verifikasi dua langkah (2FA). Ini peningkatan keamanan terbesar berikutnya untuk login admin.
+- Belum ada: verifikasi dua langkah (2FA). Ini peningkatan keamanan terbesar berikutnya untuk login admin. Sengaja tidak dibuat tanpa pengawasan: kesalahan kecil di alur login bisa mengunci admin di produksi, sedangkan phpMyAdmin di hosting ini tidak selalu bisa dibuka untuk memulihkan.
+- Satu user database dengan hak penuh dipakai kedua app (di Hostinger user hanya-baca belum terbukti bisa dibuat). App public tidak butuh menulis, tapi tidak ada pagar di tingkat database.
 
 ## Aturan desain (ringkas, detail ada di ~/.claude/CLAUDE.md)
 
@@ -119,26 +122,32 @@ Ubah aturan di `core`, bukan di salah satu app, supaya public dan admin selalu s
 - Cek ketersediaan tanggal.
 - Hapus otomatis file foto yang sudah tidak dipakai.
 - Verifikasi dua langkah (2FA) untuk admin.
-- Deploy produksi belum pernah dijalankan di Hostinger (baru diuji lokal, termasuk build produksi). Lihat bagian Deploy di bawah.
+- Domain asli (sekarang masih alamat sementara `*.hostingersite.com`), konten asli (data contoh masih palsu), dan pembacaan teks Arab oleh penutur asli.
 
-## Deploy ke Hostinger (checklist, belum pernah dijalankan di Hostinger)
+## Deploy ke Hostinger (sudah dijalankan dan berhasil, 2026-09-20)
 
-Sumber: dokumentasi Hostinger (dibaca 2026-09-19). Cek lagi karena bisa berubah.
+Dua app Node.js terpisah di satu paket hosting, satu database MySQL bersama. Hanya paket **Business/Cloud** yang bisa Node.js, dan tidak ada SSH atau terminal.
 
-- Aplikasi Node.js hanya jalan di paket **Business Web Hosting** atau **Cloud** (Startup/Professional/Enterprise). Hosting web biasa tidak bisa. Versi Node 18, 20, 22, atau 24. **Tidak ada SSH atau terminal** di paket ini.
-- Database: hPanel > Websites > Dashboard > **Databases > Management** > isi nama database, username, password > Create. Aplikasi di akun yang sama memakai host `localhost` port `3306` (tidak perlu akses jarak jauh).
+**Kenapa cabang `deploy`, bukan cabang `main`.** Hostinger membangun dari root repo dan tidak mengerti monorepo ini (dicoba: status Selesai tapi tidak menyala, log kosong). Yang berhasil adalah cabang `deploy` berisi HASIL BUILD siap jalan, satu folder per app: `public/` dan `admin/`. Cabang ini dihasilkan, jangan diedit tangan. Pembuatnya ada di folder di luar repo `C:\Users\ACER\enjaz-deploy` (`assemble.mjs`, `branch.mjs`, dan salinan kode di `src/`), belum masuk repo. Alurnya: `next build` dengan `output: 'standalone'` di salinan itu, `assemble.mjs` merakit folder tiap app, `branch.mjs` menyusun isi cabang, lalu commit dan push ke `deploy` (Hostinger otomatis deploy ulang).
+- `server.js` di tiap folder adalah pembungkus: memetakan nama `mysql2-<hash>` buatan Next kembali ke `mysql2` (Hostinger membuang semua folder `node_modules`, termasuk alias di `.next/node_modules`), lalu menjalankan server Next. Port dibaca dari `PORT`.
+- `package.json` di tiap folder mencantumkan `next`, `react`, `react-dom`, `mysql2` (versi persis) supaya `npm install` Hostinger memasangnya. Script `build` sengaja kosong, sebab semuanya sudah dibangun.
+- Kalau kode berubah: sinkronkan ke `enjaz-deploy/src`, build kedua app, `node assemble.mjs`, `node branch.mjs`, lalu commit dan push dari `enjaz-deploy/gitbranch`. **Uji dulu di lokal** (ekstrak hasil rakitan, `npm install`, jalankan), karena push ke `deploy` langsung tayang.
 
-Langkah:
-1. Buat database MySQL di hPanel seperti di atas. Catat nama database, username, dan password (Hostinger biasanya memberi awalan `u123456789_` pada keduanya).
-2. Buat dua aplikasi lewat **Websites > Add Website > Deploy Web App**: `apps/public` (domain utama) dan `apps/admin` (subdomain, misalnya `admin.domainmu.com`), dari GitHub atau unggah zip.
-3. Environment Variables di dashboard aplikasi (bukan file). Public: `DATABASE_URL`, `SITE_URL`. Admin: `DATABASE_URL`, `SESSION_SECRET` (nilai acak BARU), `PUBLIC_SITE_URL`, `SITE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`. Format: `DATABASE_URL=mysql://USER:PASSWORD@localhost:3306/NAMA_DB`.
-4. Saat aplikasi menyala pertama kali, tabel dan admin pertama dibuat otomatis. Log akan menulis `[db] migrasi dijalankan` dan `[db] admin pertama dibuat`. Kalau password ditolak (kurang dari 12 karakter atau memuat bagian email), admin TIDAK dibuat dan log menjelaskan alasannya.
-5. Login admin pertama memaksa ganti password. Setelah itu **hapus `ADMIN_PASSWORD` dari environment**.
-6. Pakai HTTPS di kedua domain (HSTS dan cookie `__Host-` mengharuskannya).
-7. `getClientIp` membaca `x-forwarded-for`. Itu hanya bisa dipercaya jika aplikasi memang di belakang proxy Hostinger. Kalau bisa diakses langsung, header itu bisa dipalsukan (batas login per akun tetap berlaku).
-8. Server Actions Next memeriksa Origin. Jika muncul error "Invalid Server Actions request" di belakang proxy, atur `experimental.serverActions.allowedOrigins` di `next.config.mjs`.
-9. Pastikan backup Hostinger untuk database aktif, dan unduh cadangan berkala dari halaman Pengaturan.
+**Pengaturan tiap app di hPanel (Website > Buat website > GitHub, repo `entazproperty`):**
+- Branch `deploy`. Root directory `public` (public) atau `admin` (admin). Preset framework **Other**. Build command `npm run build`. Entry file `server.js`. Direktori output kosong. Node 22.
+- Environment public: `DATABASE_URL`, `SITE_URL`. Environment admin: `DATABASE_URL`, `SESSION_SECRET` (acak, 32+ karakter), `SITE_URL` (alamat admin sendiri), `PUBLIC_SITE_URL` (alamat public), `ADMIN_EMAIL`, `ADMIN_PASSWORD`. Perubahan environment perlu deploy ulang.
+- Setelah login admin pertama dan ganti password: **hapus `ADMIN_PASSWORD`** dari environment. Opsional `SEED_SAMPLE=1` di app ADMIN saja mengisi listing dan testimoni contoh (PALSU) ke database yang masih kosong, lalu hapus variabelnya.
 
-**Risiko terbuka (belum diverifikasi):**
-- Repo ini **monorepo** (`apps/*` + `packages/core`). Dokumentasi Hostinger tidak menyebut dukungan monorepo. Perintah build otomatis mereka mungkin hanya bekerja dari satu folder aplikasi yang berdiri sendiri. Jika deploy gagal karena `@enjaz/core` tidak ditemukan, solusi yang perlu dicoba: `output: 'standalone'` dengan `outputFileTracingRoot` ke root repo, lalu unggah hasil build.
-- Belum diketahui apakah paket yang dipakai membolehkan dua aplikasi Node.js sekaligus.
+**Pelajaran dari deploy pertama (jangan diulang):**
+- `DATABASE_URL` harus memakai host **`127.0.0.1`**, bukan `localhost`. Di Hostinger akun database dibedakan per alamat asal koneksi: `localhost` menjadi `::1` (IPv6) atau unix socket, dan itu akun terpisah dengan password lain. Format: `mysql://USER:PASSWORD@127.0.0.1:3306/NAMA_DB` (nama database peka huruf besar-kecil, berawalan `u123456789_`).
+- Password user database bisa diganti tanpa form hPanel: buka phpMyAdmin dari hPanel (masuk otomatis sebagai user itu), tab SQL, jalankan `SET PASSWORD = PASSWORD('...');`. `ALTER USER` ditolak (butuh hak CREATE USER). Form pembuatan user di hPanel pernah menghasilkan password yang tidak cocok, penyebabnya tidak diketahui.
+- Tiga kesalahan yang menghabiskan waktu: environment terisi nilai `.env` LOKAL (`127.0.0.1:3307`), preset Next.js (harus Other), dan Root directory `./` (harus `public` atau `admin`).
+- Untuk mendiagnosis koneksi database di server yang tidak bisa dijangkau dari luar, pernah dipakai `diag.js` sementara yang mencoba beberapa cara menyambung dan melaporkan hasilnya tanpa mencetak password. Sudah dihapus, tapi ide ini berguna kalau terulang.
+- Domain sementara `*.hostingersite.com` menyajikan `robots.txt` bawaan Hostinger (`Disallow` untuk Googlebot). Itu berubah setelah domain asli dihubungkan. `robots.txt` dan `sitemap.xml` kita dibuat per permintaan (`force-dynamic`) supaya memakai `SITE_URL` saat berjalan, bukan saat build.
+
+**Domain asli (belum ada):** public di domain utama dan admin di subdomain (`admin.domainmu.com`), satu domain tanpa biaya tambahan untuk subdomain. Hubungkan lewat 'Hubungkan domain' di tiap app, lalu ganti `SITE_URL` (dan `PUBLIC_SITE_URL` di admin) dan deploy ulang.
+
+**Risiko yang masih terbuka:**
+- Satu database dipakai kedua app: kalau database bermasalah, keduanya ikut mati. Pastikan backup database Hostinger aktif dan unduh cadangan dari halaman Pengaturan secara berkala.
+- `getClientIp` membaca `x-forwarded-for`. Itu bisa dipercaya karena app memang di belakang proxy Hostinger (`hcdn`).
+- Server Actions Next memeriksa Origin. Belum ada masalah, tapi kalau muncul 'Invalid Server Actions request', atur `experimental.serverActions.allowedOrigins`.

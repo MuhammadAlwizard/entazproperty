@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import { Bricolage_Grotesque, Hanken_Grotesk, IBM_Plex_Sans_Arabic } from 'next/font/google';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -47,9 +48,11 @@ export default async function LangLayout({ children, params }: Props & { childre
   if (!isLocale(lang)) notFound(); // proxy.ts guarantees a valid language, this is only a safety net
   const meta = LOCALE_META[lang];
   const d = getDict(lang);
+  const csp = (await headers()).get('x-csp-meta') || undefined;
 
   return (
     <html lang={meta.htmlLang} dir={meta.dir} className={`${display.variable} ${body.variable} ${arabic.variable}`}>
+      <head>{csp && <meta httpEquiv="Content-Security-Policy" content={csp} />}</head>
       <body>
         <a href="#isi" className="skip">{d.skip}</a>
         <Header locale={lang} />

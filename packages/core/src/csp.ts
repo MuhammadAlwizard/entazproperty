@@ -29,6 +29,20 @@ export function buildCsp(opts: { nonce: string; dev: boolean; frameSrc?: string[
   return directives.join('; ');
 }
 
+/**
+ * The same policy as a <meta http-equiv> tag. Some hosts (Hostinger's CDN) replace the Content-Security-Policy
+ * response header with their own, so the policy is also written into the HTML. A meta tag cannot carry
+ * frame-ancestors, report-uri or sandbox, so those are dropped here; X-Frame-Options covers framing.
+ */
+export function cspForMeta(csp: string | null | undefined): string | undefined {
+  if (!csp) return undefined;
+  const kept = csp
+    .split(';')
+    .map((d) => d.trim())
+    .filter((d) => d && !/^(frame-ancestors|report-uri|report-to|sandbox)(\s|$)/i.test(d));
+  return kept.join('; ');
+}
+
 /** Headers every response should carry. HSTS only makes sense (and is only sent) over HTTPS in production. */
 export function baseSecurityHeaders(prod: boolean): Record<string, string> {
   return {

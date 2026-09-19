@@ -12,6 +12,17 @@ export async function bootstrap(): Promise<void> {
   const applied = await migrate();
   if (applied.length) console.log(`[db] migrasi dijalankan: ${applied.join(', ')}`);
 
+  // Optional, for previewing the design on a fresh database: SEED_SAMPLE=1 fills empty listings and
+  // testimonials with the FAKE sample content (see seed.ts). It never touches content that exists.
+  // Set it on ONE app only (the admin), then remove it; two apps starting together could both seed.
+  if (process.env.SEED_SAMPLE === '1') {
+    const { seedSampleContent } = await import('./seed');
+    const added = await seedSampleContent();
+    if (added.listings || added.testimonials) {
+      console.log(`[db] data contoh (PALSU) ditambahkan: ${added.listings} listing, ${added.testimonials} testimoni. Hapus SEED_SAMPLE dari environment.`);
+    }
+  }
+
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
   if (!email || !password) return;
