@@ -72,7 +72,10 @@ export async function seedSampleContent(): Promise<{ listings: number; testimoni
       await createListing({ address: '', mapsUrl: '', featured: false, summary: '', description: '', translations: SAMPLE_LISTING_TRANSLATIONS[s.title] ?? {}, ...s, published: true });
       l++;
     }
-    await saveSettings({ heroImages: [1, 2, 3].map((n) => `https://picsum.photos/seed/enjaz-hero-${n}/1920/1080`).join(String.fromCharCode(10)) });
+    await saveSettings({
+      heroImages: [1, 2, 3].map((n) => `https://picsum.photos/seed/enjaz-hero-${n}/1920/1080`).join(String.fromCharCode(10)),
+      heroImagesMobile: [1, 2, 3].map((n) => `https://picsum.photos/seed/enjaz-hero-m${n}/1080/1920`).join(String.fromCharCode(10)),
+    });
   }
   if ((await listTestimonials({ limit: 1 })).length === 0) {
     for (const x of testimonials) { await createTestimonial({ ...x, photo: '', translations: SAMPLE_TESTIMONIAL_TRANSLATIONS[x.name] ?? {}, published: true }); t++; }

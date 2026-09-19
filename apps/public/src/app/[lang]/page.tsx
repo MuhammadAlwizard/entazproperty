@@ -21,6 +21,7 @@ export default async function Home({ params }: Props) {
   const d = getDict(lang);
   const [settings, testimonials] = await Promise.all([getSettings(), listTestimonials({ publishedOnly: true, limit: 12 })]);
   const heroImages = parseHeroImages(settings.heroImages);
+  const heroImagesMobile = parseHeroImages(settings.heroImagesMobile);
 
   const org = {
     '@context': 'https://schema.org',
@@ -38,7 +39,7 @@ export default async function Home({ params }: Props) {
 
       {/* Hero: full-screen photo, header floats on top of it (see .hero in globals.css) */}
       <section className="hero" aria-labelledby="hero-title">
-        <HeroSlider images={heroImages} labels={{ group: d.hero.groupLabel, show: d.hero.photoLabel }} />
+        <HeroSlider images={heroImages} mobileImages={heroImagesMobile} labels={{ group: d.hero.groupLabel, show: d.hero.photoLabel }} />
         <div className="hero-shade" aria-hidden="true" />
         <div className="hero-content">
           <h1 id="hero-title">

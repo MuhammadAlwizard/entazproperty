@@ -64,7 +64,11 @@ export type Testimonial = {
 
 export type TestimonialInput = Omit<Testimonial, 'id' | 'sortOrder'>;
 
-/** heroImages holds one photo URL per line, in display order (first = main photo). */
-export const SETTING_KEYS = ['whatsapp', 'email', 'address', 'instagram', 'heroImages'] as const;
+/**
+ * heroImages holds one photo URL per line, in display order (first = main photo).  
+ * heroImagesMobile is the optional portrait set for tall screens (phones held upright): photo N replaces
+ * photo N of heroImages there, and a missing one falls back to the wide photo.
+ */
+export const SETTING_KEYS = ['whatsapp', 'email', 'address', 'instagram', 'heroImages', 'heroImagesMobile'] as const;
 export type SettingKey = (typeof SETTING_KEYS)[number];
 export type Settings = Record<SettingKey, string>;
