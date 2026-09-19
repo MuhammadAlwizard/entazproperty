@@ -9,3 +9,4 @@ export { hashPassword, verifyPassword, checkNewPassword } from './password';
 export { closePool } from './db';
 export { migrate } from './migrations';
 export { bootstrap } from './bootstrap';
+export * from './localize';

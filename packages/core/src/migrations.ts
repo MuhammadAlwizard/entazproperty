@@ -1,3 +1,4 @@
+import type { PoolConnection } from 'mysql2/promise';
 import { pool } from './db';
 
 /**
@@ -12,7 +13,18 @@ import { pool } from './db';
  */
 const TABLE_OPTIONS = 'ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
 
-export const MIGRATIONS: { id: string; statements: string[] }[] = [
+type Step = string | ((conn: PoolConnection) => Promise<void>);
+
+/** MySQL 8 has no "ADD COLUMN IF NOT EXISTS" (MariaDB does), so check the catalog first. */
+const addColumnIfMissing = (table: string, column: string, definition: string): Step => async (conn) => {
+  const [rows] = await conn.query(
+    'SELECT COUNT(*) AS n FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?',
+    [table, column],
+  );
+  if (Number((rows as { n: number }[])[0].n) === 0) await conn.query(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+};
+
+export const MIGRATIONS: { id: string; statements: Step[] }[] = [
   {
     id: '001_baseline',
     statements: [
@@ -109,6 +121,15 @@ export const MIGRATIONS: { id: string; statements: string[] }[] = [
       ) ${TABLE_OPTIONS}`,
     ],
   },
+  {
+    // Admin-entered English / Arabic versions of listing and testimonial text, stored as JSON.
+    // NULL or missing language = the public site falls back to the Indonesian text.
+    id: '002_translations',
+    statements: [
+      addColumnIfMissing('listings', 'translations', 'LONGTEXT NULL'),
+      addColumnIfMissing('testimonials', 'translations', 'LONGTEXT NULL'),
+    ],
+  },
 ];
 
 /** Applies pending migrations in order. Safe to run repeatedly and from two apps at once. Returns the ids it applied. */
@@ -128,7 +149,10 @@ export async function migrate(): Promise<string[]> {
     const applied: string[] = [];
     for (const m of MIGRATIONS) {
       if (done.has(m.id)) continue;
-      for (const sql of m.statements) await conn.query(sql);
+      for (const step of m.statements) {
+        if (typeof step === 'string') await conn.query(step);
+        else await step(conn);
+      }
       await conn.query('INSERT INTO schema_migrations (id) VALUES (?)', [m.id]);
       applied.push(m.id);
     }

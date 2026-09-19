@@ -7,6 +7,7 @@ import type { Listing } from '@enjaz/core';
 import type { FormState } from '@/lib/form';
 import { ImageUploader } from '@/components/ImageUploader';
 import { SubmitButton } from '@/components/SubmitButton';
+import { ListingTranslationFields } from '@/components/TranslationFields';
 
 type Props = {
   listing?: Listing;
@@ -120,6 +121,8 @@ export function ListingForm({ listing, action }: Props) {
           {err.description && <em className="field-error">{err.description}</em>}
         </label>
       </fieldset>
+
+      <ListingTranslationFields category={category} existing={listing?.translations} values={state.values} errors={err} />
 
       <fieldset className="group">
         <legend>Foto</legend>

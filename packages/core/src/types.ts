@@ -1,4 +1,16 @@
-import type { Category } from './categories';
+import type { Category, TranslationLang } from './categories';
+
+export type ListingTranslation = {
+  title?: string;
+  summary?: string;
+  description?: string;
+  location?: string;
+  /** Only the free-text fields (see translatableMetaFields) */
+  meta?: Record<string, string>;
+};
+export type ListingTranslations = Partial<Record<TranslationLang, ListingTranslation>>;
+
+export type TestimonialTranslations = Partial<Record<TranslationLang, { quote?: string; origin?: string }>>;
 
 export type Listing = {
   id: number;
@@ -13,6 +25,7 @@ export type Listing = {
   mapsUrl: string;
   images: string[];
   meta: Record<string, string>;
+  translations: ListingTranslations;
   published: boolean;
   featured: boolean;
   sortOrder: number;
@@ -31,6 +44,7 @@ export type ListingInput = {
   mapsUrl: string;
   images: string[];
   meta: Record<string, string>;
+  translations: ListingTranslations;
   published: boolean;
   featured: boolean;
 };
@@ -42,6 +56,7 @@ export type Testimonial = {
   quote: string;
   /** Optional customer photo (upload URL). Empty = show initials instead. */
   photo: string;
+  translations: TestimonialTranslations;
   rating: number;
   published: boolean;
   sortOrder: number;

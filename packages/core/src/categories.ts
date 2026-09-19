@@ -7,6 +7,10 @@ export const MAX_LISTING_IMAGES = 30;
 /** Max photos in the landing page hero slideshow (Pengaturan > Foto hero). */
 export const MAX_HERO_IMAGES = 6;
 
+/** Languages an admin can translate content into. Indonesian is the source language and needs no translation. */
+export const TRANSLATION_LANGS = ['en', 'ar'] as const;
+export type TranslationLang = (typeof TRANSLATION_LANGS)[number];
+
 export const CATEGORIES = ['villa', 'mobil', 'motor', 'tour'] as const;
 export type Category = (typeof CATEGORIES)[number];
 
@@ -88,4 +92,9 @@ export const CATEGORY_CONFIG: Record<Category, CategoryConfig> = {
 
 export function isCategory(value: string): value is Category {
   return (CATEGORIES as readonly string[]).includes(value);
+}
+
+/** Free-text detail fields of a category (amenities, duration, inclusions). Select/number fields are translated by the site itself. */
+export function translatableMetaFields(category: Category): FieldDef[] {
+  return CATEGORY_CONFIG[category].fields.filter((f) => f.type === 'text');
 }
