@@ -3,6 +3,7 @@ import { displayWhatsapp, getSettings, parseWhatsappNumbers } from '@enjaz/core'
 import { getDict, localePath, type Locale } from '@/i18n';
 import { COMPANY } from '@/lib/site';
 import { LangSwitcher } from './LangSwitcher';
+import { OfficeMap } from './OfficeMap';
 
 export async function Footer({ locale }: { locale: Locale }) {
   const d = getDict(locale);
@@ -13,6 +14,7 @@ export async function Footer({ locale }: { locale: Locale }) {
       <div className="footer-grid">
         <div className="footer-brand">
           <img src="/logo-full.png" alt={COMPANY} width={260} height={113} loading="lazy" />
+          <OfficeMap address={s.address} mapsUrl={s.mapsUrl} locale={locale} />
         </div>
 
         <div>
