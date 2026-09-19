@@ -1,0 +1,19 @@
+{
+  "/(panel)/activity/page": "/activity",
+  "/(panel)/listings/[id]/page": "/listings/[id]",
+  "/(panel)/listings/new/page": "/listings/new",
+  "/(panel)/listings/page": "/listings",
+  "/(panel)/page": "/",
+  "/(panel)/settings/page": "/settings",
+  "/(panel)/testimonials/[id]/page": "/testimonials/[id]",
+  "/(panel)/testimonials/new/page": "/testimonials/new",
+  "/(panel)/testimonials/page": "/testimonials",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/upload/route": "/api/upload",
+  "/backup/route": "/backup",
+  "/icon.png/route": "/icon.png",
+  "/login/page": "/login",
+  "/robots.txt/route": "/robots.txt",
+  "/uploads/[...path]/route": "/uploads/[...path]"
+}

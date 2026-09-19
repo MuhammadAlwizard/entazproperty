@@ -1,0 +1,17 @@
+{
+  "name": "enjaz-public",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PT Enjaz Instan Properti public app (prebuilt, nothing to install or build)",
+  "main": "server.js",
+  "scripts": {
+    "build": "node -e \"process.exit(0)\"",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "next": "16.3.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "mysql2": "3.24.4"
+  }
+}

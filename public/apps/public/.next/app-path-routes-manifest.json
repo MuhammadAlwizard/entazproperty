@@ -1,0 +1,11 @@
+{
+  "/[lang]/[category]/[slug]/page": "/[lang]/[category]/[slug]",
+  "/[lang]/[category]/page": "/[lang]/[category]",
+  "/[lang]/page": "/[lang]",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/icon.png/route": "/icon.png",
+  "/robots.txt/route": "/robots.txt",
+  "/sitemap.xml/route": "/sitemap.xml",
+  "/uploads/[...path]/route": "/uploads/[...path]"
+}

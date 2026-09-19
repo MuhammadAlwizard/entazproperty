@@ -1,0 +1,19 @@
+{
+  "/(panel)/activity/page": "app/(panel)/activity/page.js",
+  "/(panel)/listings/[id]/page": "app/(panel)/listings/[id]/page.js",
+  "/(panel)/listings/new/page": "app/(panel)/listings/new/page.js",
+  "/(panel)/listings/page": "app/(panel)/listings/page.js",
+  "/(panel)/page": "app/(panel)/page.js",
+  "/(panel)/settings/page": "app/(panel)/settings/page.js",
+  "/(panel)/testimonials/[id]/page": "app/(panel)/testimonials/[id]/page.js",
+  "/(panel)/testimonials/new/page": "app/(panel)/testimonials/new/page.js",
+  "/(panel)/testimonials/page": "app/(panel)/testimonials/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/upload/route": "app/api/upload/route.js",
+  "/backup/route": "app/backup/route.js",
+  "/icon.png/route": "app/icon.png/route.js",
+  "/login/page": "app/login/page.js",
+  "/robots.txt/route": "app/robots.txt/route.js",
+  "/uploads/[...path]/route": "app/uploads/[...path]/route.js"
+}

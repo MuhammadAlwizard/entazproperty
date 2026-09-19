@@ -1,0 +1,17 @@
+self.__MIDDLEWARE_MATCHERS = [
+  {
+    "missing": [
+      {
+        "type": "header",
+        "key": "next-router-prefetch"
+      },
+      {
+        "type": "header",
+        "key": "purpose",
+        "value": "prefetch"
+      }
+    ],
+    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/((?!uploads|_next\\/static|_next\\/image|icon.png|logo-.*\\.png|og.png|robots.txt|sitemap.xml).*))(\\.json|\\.rsc|\\.segments\\/.+\\.segment\\.rsc)?[\\/#\\?]?$",
+    "originalSource": "/((?!uploads|_next/static|_next/image|icon.png|logo-.*\\.png|og.png|robots.txt|sitemap.xml).*)"
+  }
+];self.__MIDDLEWARE_MATCHERS_CB && self.__MIDDLEWARE_MATCHERS_CB()

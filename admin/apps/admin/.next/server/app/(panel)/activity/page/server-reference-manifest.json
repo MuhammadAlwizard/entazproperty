@@ -1,0 +1,27 @@
+{
+  "node": {
+    "00f37b995232815116cf0eac3d703d572a1c453717": {
+      "workers": {
+        "app/(panel)/activity/page": {
+          "moduleId": 30462,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "logout",
+      "filename": "apps/admin/src/app/login/actions.ts"
+    },
+    "60e12739b89978e7b546357db9fb3c21b37f10c702": {
+      "workers": {
+        "app/(panel)/activity/page": {
+          "moduleId": 30462,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "login",
+      "filename": "apps/admin/src/app/login/actions.ts"
+    }
+  },
+  "edge": {}
+}

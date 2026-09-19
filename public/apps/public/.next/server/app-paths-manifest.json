@@ -1,0 +1,11 @@
+{
+  "/[lang]/[category]/[slug]/page": "app/[lang]/[category]/[slug]/page.js",
+  "/[lang]/[category]/page": "app/[lang]/[category]/page.js",
+  "/[lang]/page": "app/[lang]/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/icon.png/route": "app/icon.png/route.js",
+  "/robots.txt/route": "app/robots.txt/route.js",
+  "/sitemap.xml/route": "app/sitemap.xml/route.js",
+  "/uploads/[...path]/route": "app/uploads/[...path]/route.js"
+}

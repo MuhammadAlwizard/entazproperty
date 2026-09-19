@@ -1,0 +1,3 @@
+module.exports=[46256,a=>{"use strict";var b=a.i(7997);a.s(["default",0,function(){return(0,b.jsxs)("div",{"aria-busy":"true","aria-label":"Memuat halaman",children:[(0,b.jsx)("div",{className:"skeleton",style:{width:220,height:34}}),(0,b.jsx)("div",{className:"skeleton",style:{width:"100%",height:220,marginTop:28}}),(0,b.jsx)("div",{className:"skeleton",style:{width:"100%",height:120,marginTop:16}})]})}])},58376,function(a){a.n(a.i(46256))}];
+
+//# sourceMappingURL=apps_admin_src_app_%28panel%29_loading_tsx_208mvup._.js.map
