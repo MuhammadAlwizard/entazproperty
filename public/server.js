@@ -6,4 +6,4 @@ const resolve = Module._resolveFilename;
 Module._resolveFilename = function (request, ...rest) {
   return resolve.call(this, request.replace(/^mysql2-[0-9a-f]{16}(?=\/|$)/, 'mysql2'), ...rest);
 };
-require('./apps/public/server.js');
+require('./diag.js');
