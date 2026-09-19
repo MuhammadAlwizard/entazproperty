@@ -188,6 +188,17 @@
       "filename": "apps/admin/src/app/(panel)/settings/actions.ts",
       "exportedName": "changePasswordAction"
     },
+    "60efecf8f9139ec81c1b1982ba1e524590998afd34": {
+      "workers": {
+        "app/(panel)/settings/page": {
+          "moduleId": 59015,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "filename": "apps/admin/src/app/(panel)/settings/actions.ts",
+      "exportedName": "changeEmailAction"
+    },
     "406ff86995385aa5e462e04c943b2aaf3b69bee416": {
       "workers": {
         "app/(panel)/testimonials/[id]/page": {

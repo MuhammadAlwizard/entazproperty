@@ -54,6 +54,17 @@
       },
       "exportedName": "changePasswordAction",
       "filename": "apps/admin/src/app/(panel)/settings/actions.ts"
+    },
+    "60efecf8f9139ec81c1b1982ba1e524590998afd34": {
+      "workers": {
+        "app/(panel)/settings/page": {
+          "moduleId": 59015,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "changeEmailAction",
+      "filename": "apps/admin/src/app/(panel)/settings/actions.ts"
     }
   },
   "edge": {}
