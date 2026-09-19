@@ -94,7 +94,10 @@ ul { margin: 0; padding: 0; list-style: none; }
    Text sits bottom-left over a navy veil. Only opacity animates. */
 .hero {
   position: relative; isolation: isolate; overflow: hidden; background: var(--navy);
-  height: 100svh; min-height: 560px; display: flex; align-items: flex-end;
+  /* lvh, not svh: on iPhone the browser toolbars float and shrink, and svh (the height with every toolbar open)
+     ends the photo above the bottom of the screen so the next section peeks out. The text keeps clear of the
+     toolbar through the bottom padding below. vh is the fallback for browsers without lvh. */
+  height: 100vh; height: 100lvh; min-height: 560px; display: flex; align-items: flex-end;
 }
 .hero-media { position: absolute; inset: 0; z-index: 0; }
 .hero-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.4s ease; }
@@ -318,8 +321,19 @@ figcaption strong { color: var(--ink); font-size: 0.98rem; }
   .footer-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
-  .hero-controls { bottom: 22px; }
+  /* the phone's own toolbar (about 84px, floating or not) covers the bottom of a full-height hero */
+  .hero-content { padding-bottom: calc(clamp(44px, 10vh, 112px) + 76px + env(safe-area-inset-bottom, 0px)); }
+  .hero-controls { bottom: calc(22px + 76px + env(safe-area-inset-bottom, 0px)); }
   .hero-idx { width: 28px; }
+}
+/* Phone held sideways: the screen is shorter than the normal minimum hero height, so fit everything into it. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .hero { min-height: 0; }
+  .hero-content { padding-bottom: 18px; gap: 12px; }
+  .hero h1 { font-size: clamp(1.5rem, 4.4vw, 2.1rem); }
+  .hero-content p { font-size: 0.98rem; }
+  .hero-content .btn { padding: 12px 24px; font-size: 1rem; }
+  .hero-controls { bottom: 18px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .tst-track { animation: none; }
