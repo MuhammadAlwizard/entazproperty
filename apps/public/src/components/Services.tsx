@@ -40,7 +40,9 @@ export async function Services({ locale }: { locale: Locale }) {
                       <>{' · '}{d.services.from} <bdi className="num">{formatPrice(locale, cheapest)}</bdi> / {unitLabel(locale, category)}</>
                     )}
                   </>
-                ) : d.services.soon}
+                ) : (
+                  <span className="service-soon">{d.services.soon}</span>
+                )}
               </p>
             </Link>
           </li>

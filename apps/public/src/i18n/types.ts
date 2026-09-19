@@ -16,7 +16,7 @@ export type Dict = {
   skip: string;
   nav: { villa: string; mobil: string; motor: string; tour: string; testimoni: string; menu: string; mainMenu: string; mobileMenu: string; brand: string; whatsapp: string; language: string };
   hero: { line1: string; line2: string; text: string; cta: string; groupLabel: string; photoLabel: string };
-  services: { title: string; note: string; soon: string; from: string };
+  services: { title: string; note: string; soon: string; from: string; other: string };
   categories: Record<Category, CategoryText>;
   units: { malam: string; hari: string; orang: string };
   plural: Record<PluralKey, Forms>;
