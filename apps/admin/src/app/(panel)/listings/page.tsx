@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { Plus } from '@phosphor-icons/react/dist/ssr';
 import { CATEGORIES, CATEGORY_CONFIG, formatRupiah, isCategory, listListings } from '@enjaz/core';
 import { requireAdmin } from '@/lib/auth';
+import { DeleteButton } from '@/components/DeleteButton';
+import { deleteListingAction } from './actions';
 
 export const metadata: Metadata = { title: 'Listing' };
 
@@ -66,6 +68,7 @@ export default async function Listings({ searchParams }: { searchParams: SP }) {
                 <th scope="col">Lokasi</th>
                 <th scope="col" className="num">Harga</th>
                 <th scope="col">Status</th>
+                <th scope="col"><span className="sr-only">Aksi</span></th>
               </tr>
             </thead>
             <tbody>
@@ -81,6 +84,7 @@ export default async function Listings({ searchParams }: { searchParams: SP }) {
                   <td>{l.location || (CATEGORY_CONFIG[l.category].locationRequired ? <span className="warn">Belum diisi</span> : <span className="muted">-</span>)}</td>
                   <td className="num">{formatRupiah(l.price)}<small className="muted"> / {CATEGORY_CONFIG[l.category].priceUnit}</small></td>
                   <td>{l.published ? <span className="pill pill-ok">Tampil</span> : <span className="pill">Draft</span>}</td>
+                  <td className="row-actions"><DeleteButton compact what={`listing ${l.title}`} action={deleteListingAction.bind(null, l.id)} /></td>
                 </tr>
               ))}
             </tbody>
