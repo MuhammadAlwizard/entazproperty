@@ -1,3 +1,3 @@
-module.exports=[76325,e=>{"use strict";async function s(){if("0"!==process.env.AUTO_MIGRATE)try{let{bootstrap:s}=await e.A(86880);await s()}catch(e){console.error("[db] bootstrap gagal:",e.message)}}e.s(["register",0,s])},86880,e=>{e.v(s=>Promise.all(["server/chunks/[externals]__024mc7a._.js","server/chunks/packages_core_src_index_ts_1cg57rq._.js"].map(s=>e.l(s))).then(()=>s(97920)))}];
+module.exports=[76325,e=>{"use strict";async function r(){if("0"!==process.env.AUTO_MIGRATE)try{let{bootstrap:r}=await e.A(86880);await r()}catch(e){console.error("[db] bootstrap gagal:",e.message)}}e.s(["register",0,r])},86880,e=>{e.v(r=>Promise.all(["server/chunks/[root-of-the-server]__10ou-3y._.js","server/chunks/packages_core_src_index_ts_1cg57rq._.js"].map(r=>e.l(r))).then(()=>r(97920)))}];
 
 //# sourceMappingURL=_0k_qk7q._.js.map
