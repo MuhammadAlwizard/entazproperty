@@ -11,3 +11,20 @@ backups
 
 # Files for deploying (contain secrets and real content): never commit
 deploy
+
+# Local-only or generated, never commit (also enforced by scripts/check-public.mjs)
+.env.*
+!.env.example
+out
+dist
+coverage
+.claude
+*.log
+*.zip
+*.sql
+*.pem
+*.key
+.DS_Store
+Thumbs.db
+Cuplikan layar*
+WhatsApp Image*
