@@ -12,7 +12,7 @@ const LOAD_REST_AFTER_MS = 2500;
  * tab is hidden, and while the pointer or keyboard focus is inside the hero
  * (so anyone can hold a photo still without a visible control).
  */
-export function HeroSlider({ images }: { images: string[] }) {
+export function HeroSlider({ images, labels }: { images: string[]; labels: { group: string; show: string } }) {
   const count = images.length;
   const mediaRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -82,13 +82,13 @@ export function HeroSlider({ images }: { images: string[] }) {
       </div>
 
       {ready && (
-        <div className="hero-controls" role="group" aria-label="Pilih foto latar">
+        <div className="hero-controls" role="group" aria-label={labels.group}>
           {images.map((_, i) => (
             <button
               key={i}
               type="button"
               className={`hero-idx ${i === active ? 'is-active' : ''}`}
-              aria-label={`Tampilkan foto ${i + 1} dari ${count}`}
+              aria-label={labels.show.replace('{n}', String(i + 1)).replace('{total}', String(count))}
               aria-current={i === active ? 'true' : undefined}
               onClick={() => setActive(i)}
             />

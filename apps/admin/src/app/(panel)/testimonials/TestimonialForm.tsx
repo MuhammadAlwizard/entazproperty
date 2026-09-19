@@ -6,6 +6,7 @@ import type { Testimonial } from '@enjaz/core';
 import type { FormState } from '@/lib/form';
 import { SubmitButton } from '@/components/SubmitButton';
 import { ImageUploader } from '@/components/ImageUploader';
+import { TestimonialTranslationFields } from '@/components/TranslationFields';
 
 type Props = { item?: Testimonial; action: (prev: FormState, fd: FormData) => Promise<FormState> };
 
@@ -57,6 +58,8 @@ export function TestimonialForm({ item, action }: Props) {
           <span>Tampilkan di website</span>
         </label>
       </fieldset>
+      <TestimonialTranslationFields existing={item?.translations} values={state.values} errors={err} />
+
       <div className="form-actions">
         <SubmitButton>Simpan testimoni</SubmitButton>
         <Link href="/testimonials" className="btn-text">Batal</Link>

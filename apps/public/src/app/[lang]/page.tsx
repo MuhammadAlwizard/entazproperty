@@ -1,16 +1,24 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { getSettings, listTestimonials, parseHeroImages } from '@enjaz/core';
 import { HeroSlider } from '@/components/HeroSlider';
 import { Services } from '@/components/Services';
 import { Testimonials } from '@/components/Testimonials';
-import { COMPANY, SITE_URL, jsonLd } from '@/lib/site';
+import { getDict, isLocale } from '@/i18n';
+import { COMPANY, SITE_URL, alternatesFor, jsonLd } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: { absolute: `${COMPANY} | Sewa Villa, Mobil, Motor dan Tour` },
-  alternates: { canonical: '/' },
-};
+type Props = { params: Promise<{ lang: string }> };
 
-export default async function Home() {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLocale(lang)) return {};
+  return { title: { absolute: getDict(lang).meta.title }, alternates: alternatesFor(lang, '/') };
+}
+
+export default async function Home({ params }: Props) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  const d = getDict(lang);
   const [settings, testimonials] = await Promise.all([getSettings(), listTestimonials({ publishedOnly: true, limit: 12 })]);
   const heroImages = parseHeroImages(settings.heroImages);
 
@@ -30,21 +38,21 @@ export default async function Home() {
 
       {/* Hero: full-screen photo, header floats on top of it (see .hero in globals.css) */}
       <section className="hero" aria-labelledby="hero-title">
-        <HeroSlider images={heroImages} />
+        <HeroSlider images={heroImages} labels={{ group: d.hero.groupLabel, show: d.hero.photoLabel }} />
         <div className="hero-shade" aria-hidden="true" />
         <div className="hero-content">
           <h1 id="hero-title">
-            Villa, kendaraan, dan tour.<br />Satu tempat.
+            {d.hero.line1}<br />{d.hero.line2}
           </h1>
-          <p>Sewa villa dengan lokasi jelas, kendaraan siap jalan, dan paket wisata dari PT Enjaz Instan Properti.</p>
-          <a href="#layanan" className="btn btn-gold">Pilih layanan</a>
+          <p>{d.hero.text}</p>
+          <a href="#layanan" className="btn btn-gold">{d.hero.cta}</a>
         </div>
       </section>
 
       {/* Villa, Mobil, Motor, Travel & Tour: four cards, each opens its own category page */}
-      <Services />
+      <Services locale={lang} />
 
-      <Testimonials items={testimonials} />
+      <Testimonials items={testimonials} locale={lang} />
     </>
   );
 }

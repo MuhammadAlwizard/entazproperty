@@ -1,6 +1,7 @@
 import { countAdmins, createAdmin, createListing, createTestimonial, listListings, listTestimonials, saveSettings } from './queries';
 import { hashPassword } from './password';
 import type { ListingInput } from './types';
+import { SAMPLE_LISTING_TRANSLATIONS, SAMPLE_TESTIMONIAL_TRANSLATIONS } from './sample-translations';
 
 // SAMPLE DATA ONLY. Names, prices, ratings and testimonials below are invented
 // to preview the design. Replace them in the admin panel before launch.
@@ -8,7 +9,7 @@ import type { ListingInput } from './types';
 const img = (seed: string) => `https://picsum.photos/seed/${seed}/1200/800`;
 const imgs = (seed: string, n = 3) => Array.from({ length: n }, (_, i) => img(`${seed}-${i + 1}`));
 
-type Sample = Omit<ListingInput, 'address' | 'mapsUrl' | 'featured' | 'published' | 'summary' | 'description'> &
+type Sample = Omit<ListingInput, 'address' | 'mapsUrl' | 'featured' | 'published' | 'summary' | 'description' | 'translations'> &
   Partial<Pick<ListingInput, 'address' | 'mapsUrl' | 'featured' | 'summary' | 'description'>>;
 
 const samples: Sample[] = [
@@ -68,13 +69,13 @@ export async function seedSampleContent(): Promise<{ listings: number; testimoni
   let t = 0;
   if ((await listListings({ limit: 1 })).length === 0) {
     for (const s of samples) {
-      await createListing({ address: '', mapsUrl: '', featured: false, summary: '', description: '', ...s, published: true });
+      await createListing({ address: '', mapsUrl: '', featured: false, summary: '', description: '', translations: SAMPLE_LISTING_TRANSLATIONS[s.title] ?? {}, ...s, published: true });
       l++;
     }
     await saveSettings({ heroImages: [1, 2, 3].map((n) => `https://picsum.photos/seed/enjaz-hero-${n}/1920/1080`).join(String.fromCharCode(10)) });
   }
   if ((await listTestimonials({ limit: 1 })).length === 0) {
-    for (const x of testimonials) { await createTestimonial({ ...x, photo: '', published: true }); t++; }
+    for (const x of testimonials) { await createTestimonial({ ...x, photo: '', translations: SAMPLE_TESTIMONIAL_TRANSLATIONS[x.name] ?? {}, published: true }); t++; }
   }
   return { listings: l, testimonials: t };
 }

@@ -5,6 +5,8 @@ import {
   SETTING_KEYS,
   type Listing,
   type ListingInput,
+  type ListingTranslations,
+  type TestimonialTranslations,
   type Settings,
   type Testimonial,
   type TestimonialInput,
@@ -14,7 +16,7 @@ import {
 
 type ListingRow = {
   id: number; category: Category; slug: string; title: string; summary: string; description: string;
-  price: number; location: string; address: string; maps_url: string; images: string; meta: string;
+  price: number; location: string; address: string; maps_url: string; images: string; meta: string; translations: string | null;
   published: number; featured: number; sort_order: number; created_at: Date; updated_at: Date;
 };
 
@@ -25,6 +27,7 @@ function toListing(r: ListingRow): Listing {
     description: r.description, price: r.price, location: r.location, address: r.address,
     mapsUrl: r.maps_url, images: Array.isArray(images) ? (images as string[]) : [],
     meta: parseJson<Record<string, string>>(r.meta, {}),
+    translations: parseJson<ListingTranslations>(r.translations, {}),
     published: r.published === 1, featured: r.featured === 1, sortOrder: r.sort_order,
     createdAt: new Date(r.created_at).toISOString(), updatedAt: new Date(r.updated_at).toISOString(),
   };
@@ -67,10 +70,11 @@ export async function createListing(input: ListingInput): Promise<Listing> {
     const slug = i === 1 ? base : `${base}-${i}`;
     try {
       const res = await exec(
-        `INSERT INTO listings (category, slug, title, summary, description, price, location, address, maps_url, images, meta, published, featured)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        `INSERT INTO listings (category, slug, title, summary, description, price, location, address, maps_url, images, meta, translations, published, featured)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [input.category, slug, input.title, input.summary, input.description, input.price, input.location, input.address,
-          input.mapsUrl, JSON.stringify(input.images), JSON.stringify(input.meta), input.published ? 1 : 0, input.featured ? 1 : 0],
+          input.mapsUrl, JSON.stringify(input.images), JSON.stringify(input.meta), JSON.stringify(input.translations ?? {}),
+          input.published ? 1 : 0, input.featured ? 1 : 0],
       );
       return (await getListingById(res.insertId))!;
     } catch (e) {
@@ -85,9 +89,10 @@ export async function createListing(input: ListingInput): Promise<Listing> {
 export async function updateListing(id: number, input: ListingInput): Promise<Listing | null> {
   await exec(
     `UPDATE listings SET category=?, title=?, summary=?, description=?, price=?, location=?, address=?, maps_url=?,
-       images=?, meta=?, published=?, featured=?, updated_at=CURRENT_TIMESTAMP(3) WHERE id=?`,
+       images=?, meta=?, translations=?, published=?, featured=?, updated_at=CURRENT_TIMESTAMP(3) WHERE id=?`,
     [input.category, input.title, input.summary, input.description, input.price, input.location, input.address,
-      input.mapsUrl, JSON.stringify(input.images), JSON.stringify(input.meta), input.published ? 1 : 0, input.featured ? 1 : 0, id],
+      input.mapsUrl, JSON.stringify(input.images), JSON.stringify(input.meta), JSON.stringify(input.translations ?? {}),
+      input.published ? 1 : 0, input.featured ? 1 : 0, id],
   );
   return getListingById(id);
 }
@@ -114,9 +119,10 @@ export async function countListings(): Promise<{ total: number; published: numbe
 
 /* ---------------------------- Testimonials ---------------------------- */
 
-type TestimonialRow = { id: number; name: string; origin: string; quote: string; photo: string; rating: number; published: number; sort_order: number };
+type TestimonialRow = { id: number; name: string; origin: string; quote: string; photo: string; translations: string | null; rating: number; published: number; sort_order: number };
 const toTestimonial = (r: TestimonialRow): Testimonial => ({
-  id: r.id, name: r.name, origin: r.origin, quote: r.quote, photo: r.photo, rating: r.rating,
+  id: r.id, name: r.name, origin: r.origin, quote: r.quote, photo: r.photo,
+  translations: parseJson<TestimonialTranslations>(r.translations, {}), rating: r.rating,
   published: r.published === 1, sortOrder: r.sort_order,
 });
 
@@ -132,13 +138,13 @@ export async function getTestimonial(id: number): Promise<Testimonial | null> {
 }
 
 export async function createTestimonial(t: TestimonialInput): Promise<void> {
-  await exec('INSERT INTO testimonials (name, origin, quote, photo, rating, published) VALUES (?,?,?,?,?,?)',
-    [t.name, t.origin, t.quote, t.photo, t.rating, t.published ? 1 : 0]);
+  await exec('INSERT INTO testimonials (name, origin, quote, photo, translations, rating, published) VALUES (?,?,?,?,?,?,?)',
+    [t.name, t.origin, t.quote, t.photo, JSON.stringify(t.translations ?? {}), t.rating, t.published ? 1 : 0]);
 }
 
 export async function updateTestimonial(id: number, t: TestimonialInput): Promise<void> {
-  await exec('UPDATE testimonials SET name=?, origin=?, quote=?, photo=?, rating=?, published=? WHERE id=?',
-    [t.name, t.origin, t.quote, t.photo, t.rating, t.published ? 1 : 0, id]);
+  await exec('UPDATE testimonials SET name=?, origin=?, quote=?, photo=?, translations=?, rating=?, published=? WHERE id=?',
+    [t.name, t.origin, t.quote, t.photo, JSON.stringify(t.translations ?? {}), t.rating, t.published ? 1 : 0, id]);
 }
 
 export async function deleteTestimonial(id: number): Promise<void> {

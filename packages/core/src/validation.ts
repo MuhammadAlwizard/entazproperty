@@ -1,5 +1,5 @@
-import { CATEGORY_CONFIG, MAX_LISTING_IMAGES, isCategory } from './categories';
-import type { ListingInput, TestimonialInput } from './types';
+import { CATEGORY_CONFIG, MAX_LISTING_IMAGES, TRANSLATION_LANGS, isCategory, translatableMetaFields, type Category } from './categories';
+import type { ListingInput, ListingTranslations, TestimonialInput, TestimonialTranslations } from './types';
 
 // Business rules for content live here so the admin form and any future
 // import/API path enforce exactly the same thing. See CLAUDE.md.
@@ -16,6 +16,36 @@ export function parsePrice(v: unknown): number {
 
 export function isSafeImage(url: string): boolean {
   return /^\/uploads\/[a-f0-9-]+\.(jpg|png|webp)$/.test(url) || /^https:\/\/[^\s]+$/.test(url);
+}
+
+/**
+ * Reads the optional English / Arabic fields (tr_<lang>_title, tr_<lang>_meta_<key>, ...).
+ * Blank fields are dropped, so a missing translation falls back to the Indonesian text on the site.
+ */
+function parseListingTranslations(raw: Record<string, unknown>, category: Category, errors: Errors): ListingTranslations {
+  const out: ListingTranslations = {};
+  const limits: [string, number][] = [['title', 160], ['summary', 200], ['description', 5000], ['location', 120]];
+  for (const lang of TRANSLATION_LANGS) {
+    const t: NonNullable<ListingTranslations[typeof lang]> = {};
+    for (const [field, max] of limits) {
+      const key = `tr_${lang}_${field}`;
+      const v = str(raw[key]);
+      if (!v) continue;
+      if (v.length > max) errors[key] = `Maksimal ${max} karakter.`;
+      else (t as Record<string, string>)[field] = v;
+    }
+    const meta: Record<string, string> = {};
+    for (const f of translatableMetaFields(category)) {
+      const key = `tr_${lang}_meta_${f.key}`;
+      const v = str(raw[key]);
+      if (!v) continue;
+      if (v.length > 200) errors[key] = 'Maksimal 200 karakter.';
+      else meta[f.key] = v;
+    }
+    if (Object.keys(meta).length) t.meta = meta;
+    if (Object.keys(t).length) out[lang] = t;
+  }
+  return out;
 }
 
 export function validateListing(raw: Record<string, unknown>): Result<ListingInput> {
@@ -63,12 +93,14 @@ export function validateListing(raw: Record<string, unknown>): Result<ListingInp
     else meta[f.key] = v;
   }
 
+  const translations = parseListingTranslations(raw, category, errors);
+
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
     ok: true,
     data: {
       category, title, summary, description, price, location, address, mapsUrl,
-      images: imagesRaw, meta,
+      images: imagesRaw, meta, translations,
       published: raw.published === 'on' || raw.published === true,
       featured: raw.featured === 'on' || raw.featured === true,
     },
@@ -89,6 +121,14 @@ export function validateTestimonial(raw: Record<string, unknown>): Result<Testim
   const photo = str(raw.photo);
   if (photo && !isSafeImage(photo)) errors.photo = 'Alamat foto tidak valid.';
   if (!(rating >= 1 && rating <= 5)) errors.rating = 'Rating 1 sampai 5.';
+  const translations: TestimonialTranslations = {};
+  for (const lang of TRANSLATION_LANGS) {
+    const quoteT = str(raw[`tr_${lang}_quote`]);
+    const originT = str(raw[`tr_${lang}_origin`]);
+    if (quoteT.length > 600) errors[`tr_${lang}_quote`] = 'Maksimal 600 karakter.';
+    if (originT.length > 100) errors[`tr_${lang}_origin`] = 'Maksimal 100 karakter.';
+    if (quoteT || originT) translations[lang] = { ...(quoteT && { quote: quoteT }), ...(originT && { origin: originT }) };
+  }
   if (Object.keys(errors).length) return { ok: false, errors };
-  return { ok: true, data: { name, quote, origin, photo, rating, published: raw.published === 'on' || raw.published === true } };
+  return { ok: true, data: { name, quote, origin, photo, translations, rating, published: raw.published === 'on' || raw.published === true } };
 }
