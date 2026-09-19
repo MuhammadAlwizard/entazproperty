@@ -132,7 +132,7 @@ Ubah aturan di `core`, bukan di salah satu app, supaya public dan admin selalu s
 
 Dua app Node.js terpisah di satu paket hosting, satu database MySQL bersama. Hanya paket **Business/Cloud** yang bisa Node.js, dan tidak ada SSH atau terminal.
 
-**Kenapa cabang `deploy`, bukan cabang `main`.** Hostinger membangun dari root repo dan tidak mengerti monorepo ini (dicoba: status Selesai tapi tidak menyala, log kosong). Yang berhasil adalah cabang `deploy` berisi HASIL BUILD siap jalan, satu folder per app: `public/` dan `admin/`. Cabang ini dihasilkan, jangan diedit tangan. Pembuatnya ada di folder di luar repo `C:\Users\ACER\enjaz-deploy` (`assemble.mjs`, `branch.mjs`, dan salinan kode di `src/`), belum masuk repo. Alurnya: `next build` dengan `output: 'standalone'` di salinan itu, `assemble.mjs` merakit folder tiap app, `branch.mjs` menyusun isi cabang, lalu commit dan push ke `deploy` (Hostinger otomatis deploy ulang).
+**Kenapa cabang `deploy`, bukan cabang `main`.** Hostinger membangun dari root repo dan tidak mengerti monorepo ini (dicoba: status Selesai tapi tidak menyala, log kosong). Yang berhasil adalah cabang `deploy` berisi HASIL BUILD siap jalan, satu folder per app: `public/` dan `admin/`. Cabang ini dihasilkan, jangan diedit tangan. Pembuatnya ada di folder di luar repo `%USERPROFILE%\enjaz-deploy` (`assemble.mjs`, `branch.mjs`, dan salinan kode di `src/`), belum masuk repo. Alurnya: `next build` dengan `output: 'standalone'` di salinan itu, `assemble.mjs` merakit folder tiap app, `branch.mjs` menyusun isi cabang, lalu commit dan push ke `deploy` (Hostinger otomatis deploy ulang).
 - `server.js` di tiap folder adalah pembungkus: memetakan nama `mysql2-<hash>` buatan Next kembali ke `mysql2` (Hostinger membuang semua folder `node_modules`, termasuk alias di `.next/node_modules`), lalu menjalankan server Next. Port dibaca dari `PORT`.
 - `package.json` di tiap folder mencantumkan `next`, `react`, `react-dom`, `mysql2` (versi persis) supaya `npm install` Hostinger memasangnya. Script `build` sengaja kosong, sebab semuanya sudah dibangun.
 - Kalau kode berubah: sinkronkan ke `enjaz-deploy/src`, build kedua app, `node assemble.mjs`, `node branch.mjs`, lalu commit dan push dari `enjaz-deploy/gitbranch`. **Uji dulu di lokal** (ekstrak hasil rakitan, `npm install`, jalankan), karena push ke `deploy` langsung tayang.
@@ -156,6 +156,32 @@ Dua app Node.js terpisah di satu paket hosting, satu database MySQL bersama. Han
 - `getClientIp` membaca `x-forwarded-for`. Itu bisa dipercaya karena app memang di belakang proxy Hostinger (`hcdn`).
 - Permintaan prefetch Next ke beranda Indonesia (`/?_rsc=...`) dijawab 404 (juga di server hidup). Tidak terlihat oleh pengunjung karena Next lalu memuat halaman biasa. Belum diperbaiki, kemungkinan berkaitan dengan penulisan ulang `/` ke `/id` di `proxy.ts`.
 - Server Actions Next memeriksa Origin. Belum ada masalah, tapi kalau muncul 'Invalid Server Actions request', atur `experimental.serverActions.allowedOrigins`.
+
+## Aturan repo publik (repo ini PUBLIK dan dipajang di LinkedIn)
+
+Repo `MuhammadAlwizard/entazproperty` terbuka untuk siapa saja dan dipakai sebagai portofolio, sedangkan isinya proyek klien nyata (PT Enjaz Instan Properti). Jadi aturannya: **yang dipajang harus bagus dilihat, dan tidak ada yang rahasia atau pribadi.** Aturan ini dijaga skrip `scripts/check-public.mjs` (`npm run check:public`), bukan hanya catatan.
+
+**Wajib ada di repo**
+- `README.md` (apa ini, fitur, tangkapan layar dari data contoh, tech stack, cara menjalankan, status jujur termasuk yang belum ada), `.gitignore`, `.env.example` (hanya nilai contoh), `package.json` dan `package-lock.json`, seluruh kode sumber dan migrasi, `CLAUDE.md` (tanpa data pribadi), dan `scripts/check-public.mjs`.
+- `LICENSE` belum dipilih (keputusan pemilik). Tanpa LICENSE, semua hak tetap dimiliki penulis, dan itu aman sebagai bawaan. README harus menyebut bahwa logo dan nama perusahaan milik klien.
+
+**Boleh ada**
+- Kode, data contoh yang jelas palsu (nama fiktif, foto acak picsum), logo klien di `brand/` dan folder `public` tiap app (**minta izin klien** sebelum dipajang, atau ganti dengan placeholder), tangkapan layar dari data contoh di `docs/screenshots/`, dan cabang `deploy` (hasil build yang dihasilkan otomatis, tanpa rahasia).
+
+**Dilarang masuk (dijaga skrip, push ditolak kalau melanggar)**
+- Berkas `.env` selain `.env.example`; password, token, atau kunci apa pun; `DATABASE_URL` dengan password sungguhan.
+- Ekspor atau cadangan database (`.sql`, `backups/`, `data/`), folder `deploy/`, arsip (`.zip`, `.tar`), berkas kunci (`.pem`, `.key`).
+- Alamat email pribadi atau klien dan nomor telepon nyata (yang boleh hanya `@example.com` dan nomor contoh seperti `+62 812 3456 7890`).
+- Nama user atau database akun hosting (`u123456789_...`) dan jalur Windows pribadi. Tulis `%USERPROFILE%`, bukan nama pengguna.
+- Berkas mentah tidak bernama jelas: tangkapan layar (`Cuplikan layar ...`), foto WhatsApp, foto kamera. Ganti nama dan taruh di `docs/screenshots/` kalau memang untuk dipajang.
+- Hasil build dan pustaka terpasang di cabang `main` (`.next`, `node_modules`, `out`, `dist`).
+
+**Cara kerja**
+- Jalankan `npm run check:public` sebelum push. Di klon ini terpasang juga hook `.git/hooks/pre-push` (tidak ikut git, jadi pasang ulang di klon baru: buat berkas itu berisi `node scripts/check-public.mjs || exit 1`).
+- Menghapus berkas TIDAK menghapusnya dari riwayat git. Kalau sesuatu yang rahasia pernah ter-commit, **ganti rahasianya dulu** (password, token), baru pertimbangkan menulis ulang riwayat (force push, merepotkan dan berisiko). Riwayat repo ini sudah dipindai pada 2026-09-20 dan bersih dari rahasia.
+- Email pada commit terlihat publik. Commit lama memakai email pribadi pemilik, dan email itu pernah sama dengan email login admin, jadi ganti email login admin ke alamat yang tidak pernah muncul di git (Pengaturan > Email untuk masuk). Untuk commit baru pakai alamat `noreply` GitHub (`git config user.email ID+username@users.noreply.github.com`).
+- Cabang `deploy` sengaja publik supaya Hostinger bisa mengambilnya. Kalau ingin `main` terlihat bersih sebagai portofolio dan hasil build tidak dipajang, pindahkan `deploy` ke repo privat terpisah, lalu arahkan ulang kedua app di hPanel (10 sampai 15 menit, ada risiko salah pengaturan).
+- Pengaturan di sisi GitHub (bukan berkas): isi Description, Topics (`nextjs`, `typescript`, `mysql`, `i18n`, `rtl`), sematkan repo di profil, pasang gambar pratinjau sosial, dan matikan Wiki dan Projects kalau tidak dipakai.
 
 ## Pelajaran mahal: masalah, penyebab, solusi (baca sebelum menebak)
 
@@ -247,10 +273,10 @@ Semua ini benar-benar terjadi dan menghabiskan waktu. Bentuknya **gejala, penyeb
 2. Salin berkas yang berubah ke `enjaz-deploy/src` (termasuk berkas BARU, `git diff` saja tidak menampilkannya, pakai `git status --porcelain`), build kedua app, `node assemble.mjs`.
 3. Nyalakan hasil rakitan (`out/public`, `out/admin`) dengan database lokal kosong dan `SEED_SAMPLE=1`, uji di Edge lewat CDP: alur admin, tampilan public tiga bahasa, CSP, dan regresi. Untuk CSP, uji lewat proksi yang mengganti header seperti Hostinger.
 4. Kalau ada bug di alat uji, buktikan bahwa uji itu bisa mendeteksi masalahnya (kontrol tanpa CSP, injeksi yang benar-benar berjalan di halaman tanpa kebijakan) sebelum percaya hasil hijau.
-5. `node branch.mjs`, periksa isi cabang (tidak ada `diag.js`, `vh.*`, `.env`), commit dan push `main` lalu `deploy`.
+5. `npm run check:public` di repo utama, lalu `node branch.mjs`, periksa isi cabang (tidak ada `diag.js`, `vh.*`, `.env`), commit dan push `main` lalu `deploy`.
 6. Tunggu deploy, lalu verifikasi di server hidup dengan `curl` (status, isi, CSS berhash).
 
-Skrip pengemas (`assemble.mjs`, `branch.mjs`) ada di `C:\Users\ACER\enjaz-deploy` DI LUAR repo, dan skrip uji browser hanya ada di folder sementara. **Keduanya belum masuk git.** Kalau laptop hilang, alur ini hilang. Sebaiknya dipindah ke `tools/` di repo.
+Skrip pengemas (`assemble.mjs`, `branch.mjs`) ada di `%USERPROFILE%\enjaz-deploy` DI LUAR repo, dan skrip uji browser hanya ada di folder sementara. **Keduanya belum masuk git.** Kalau laptop hilang, alur ini hilang. Sebaiknya dipindah ke `tools/` di repo.
 
 ### F. Peta hPanel (tempat menemukan sesuatu)
 
@@ -263,7 +289,7 @@ Skrip pengemas (`assemble.mjs`, `branch.mjs`) ada di `C:\Users\ACER\enjaz-deploy
 ### G. Cara bekerja dengan pemilik proyek
 
 - Beri instruksi **satu langkah per pesan**, bahasa Indonesia sederhana, nilai yang harus ditempel dalam blok kode, lalu minta screenshot. Penjelasan panjang berlapis membuat langkah terlewat (ini penyebab utama deploy pertama memakan puluhan putaran).
-- Screenshot pemilik masuk sebagai berkas di `C:\Users\ACER\Downloads\Cuplikan layar ...png`. Kalau pesan datang tanpa isi, cek berkas terbaru di folder itu.
+- Screenshot pemilik masuk sebagai berkas di `%USERPROFILE%\Downloads\Cuplikan layar ...png`. Kalau pesan datang tanpa isi, cek berkas terbaru di folder itu.
 - Aturan global: jangan setuju hanya untuk setuju, beri nilai 0 sampai 10 pada ide, katakan 'itu salah' kalau memang salah, dan akui kalau tidak yakin.
 - Aku tidak boleh mengetik password ke form web. Password boleh dibagikan di chat atas izin pemilik, tapi sebaiknya diganti setelahnya. Nilai yang harus ditempel ke form, siapkan dalam berkas atau clipboard agar pemilik tinggal menempel.
 - Push ke GitHub sudah diizinkan pemilik tanpa bertanya, tapi uji lokal dulu (poin E). Pekerjaan pengemasan berada di folder terpisah, bukan di proyek utama.

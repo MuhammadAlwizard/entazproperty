@@ -12,7 +12,8 @@
     "migrate": "npm run migrate -w @enjaz/core",
     "seed": "npm run seed -w @enjaz/core",
     "backup": "npm run backup -w @enjaz/core",
-    "typecheck": "npm run typecheck -w @enjaz/core && npm run typecheck -w @enjaz/public && npm run typecheck -w @enjaz/admin"
+    "typecheck": "npm run typecheck -w @enjaz/core && npm run typecheck -w @enjaz/public && npm run typecheck -w @enjaz/admin",
+    "check:public": "node scripts/check-public.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
