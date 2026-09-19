@@ -43,9 +43,9 @@ export function SettingsForm({ settings, action }: { settings: Settings; action:
       </fieldset>
 
       <fieldset className="group">
-        <legend>Foto hero beranda</legend>
+        <legend>Foto hero beranda (layar lebar)</legend>
         <p className="hint" style={{ marginTop: -6 }}>
-          Foto besar di bagian paling atas beranda. Kalau lebih dari satu, foto berganti sendiri dengan efek memudar.
+          Foto besar di bagian paling atas beranda untuk laptop, komputer, dan HP yang dipegang mendatar. Kalau lebih dari satu, foto berganti sendiri dengan efek memudar.
           Kalau hanya satu, foto diam. Gunakan foto lanskap (mendatar), teks di atasnya otomatis diberi lapisan gelap agar terbaca.
         </p>
         <ImageUploader
@@ -55,6 +55,23 @@ export function SettingsForm({ settings, action }: { settings: Settings; action:
           maxWidth={1920}
           firstLabel="Utama"
           error={err.heroImages}
+        />
+      </fieldset>
+
+      <fieldset className="group">
+        <legend>Foto hero untuk HP (opsional)</legend>
+        <p className="hint" style={{ marginTop: -6 }}>
+          Dipakai saat layar dipegang berdiri, misalnya HP. Gunakan foto berdiri (portrait), idealnya 1080 x 1920. Tanpa ini, foto layar lebar
+          dipotong kiri dan kanannya di HP. Foto HP ke-1 menggantikan foto ke-1 di layar lebar, ke-2 menggantikan ke-2, dan seterusnya.
+          Kalau dikosongkan atau jumlahnya lebih sedikit, HP memakai foto layar lebar.
+        </p>
+        <ImageUploader
+          name="heroImagesMobile"
+          initial={settings.heroImagesMobile.split('\n').filter(Boolean)}
+          max={MAX_HERO_IMAGES}
+          maxWidth={1080}
+          firstLabel="Utama"
+          error={err.heroImagesMobile}
         />
       </fieldset>
 

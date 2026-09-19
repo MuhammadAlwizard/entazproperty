@@ -22,6 +22,7 @@ export default async function Dashboard() {
     ...noPhoto.map((l) => ({ text: `${l.title} belum punya foto`, href: `/listings/${l.id}` })),
     ...drafts.map((l) => ({ text: `${l.title} masih draft dan belum tampil di website`, href: `/listings/${l.id}` })),
     ...(!settings.heroImages.trim() ? [{ text: 'Foto hero beranda belum diisi, bagian atas website masih polos', href: '/settings' }] : []),
+    ...(settings.heroImages.trim() && !settings.heroImagesMobile.trim() ? [{ text: 'Foto hero untuk HP belum diisi, di HP foto beranda terpotong kiri dan kanan', href: '/settings' }] : []),
     ...(!settings.whatsapp ? [{ text: 'Nomor WhatsApp belum diisi, tombol pesan belum tampil di website', href: '/settings' }] : []),
     ...(noTestimonials ? [{ text: 'Belum ada testimoni yang tampil', href: '/testimonials' }] : []),
   ];

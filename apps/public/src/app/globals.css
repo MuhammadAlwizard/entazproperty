@@ -102,6 +102,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .hero-media { position: absolute; inset: 0; z-index: 0; }
 .hero-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.4s ease; }
 .hero-media img.is-active { opacity: 1; }
+.hero-media picture { display: contents; }
 /* Dark navy veil so white text and the transparent header stay readable on any photo */
 .hero-shade {
   position: absolute; inset: 0; z-index: 1;

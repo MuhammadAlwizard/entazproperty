@@ -18,6 +18,7 @@ export async function saveSettingsAction(_prev: FormState, fd: FormData): Promis
   const instagram = s(fd, 'instagram');
   const address = s(fd, 'address');
   const heroImages = parseHeroImages(fd.getAll('heroImages').filter((v): v is string => typeof v === 'string').join('\n'));
+  const heroImagesMobile = parseHeroImages(fd.getAll('heroImagesMobile').filter((v): v is string => typeof v === 'string').join('\n'));
 
   const badNumber = whatsappLines.find((n) => !/^\+?\d[\d\s-]{7,18}$/.test(n) || normalizeWhatsapp(n).length > 15);
   if (badNumber) errors.whatsapp = `Nomor "${badNumber}" tidak valid. Contoh: +62 812 3456 7890`;
@@ -27,11 +28,13 @@ export async function saveSettingsAction(_prev: FormState, fd: FormData): Promis
   if (instagram.length > 60) errors.instagram = 'Maksimal 60 karakter.';
   if (heroImages.length > MAX_HERO_IMAGES) errors.heroImages = `Maksimal ${MAX_HERO_IMAGES} foto hero.`;
   else if (heroImages.some((u) => !isSafeImage(u))) errors.heroImages = 'Ada foto dengan alamat tidak valid.';
+  if (heroImagesMobile.length > MAX_HERO_IMAGES) errors.heroImagesMobile = `Maksimal ${MAX_HERO_IMAGES} foto hero untuk HP.`;
+  else if (heroImagesMobile.some((u) => !isSafeImage(u))) errors.heroImagesMobile = 'Ada foto dengan alamat tidak valid.';
 
   if (Object.keys(errors).length) return { errors, formError: 'Ada isian yang perlu diperbaiki.' };
   // Stored one per line, always as +<country code><number>. The first line is the primary contact.
   const whatsapp = [...new Set(whatsappLines.map((n) => `+${normalizeWhatsapp(n)}`))].join('\n');
-  await saveSettings({ whatsapp, email, instagram, address, heroImages: heroImages.join('\n') });
+  await saveSettings({ whatsapp, email, instagram, address, heroImages: heroImages.join('\n'), heroImagesMobile: heroImagesMobile.join('\n') });
   await logAudit({ email: session.email, action: 'settings.update', ip: await getClientIp() });
   return { ok: 'Pengaturan tersimpan. Perubahan langsung tampil di website.' };
 }
