@@ -1,0 +1,25 @@
+{
+  "name": "enjaz-instan-properti",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n db,public,admin -c gray,blue,yellow \"npm run dev-db -w @enjaz/core\" \"npm run wait-db -w @enjaz/core && npm run dev -w @enjaz/public\" \"npm run wait-db -w @enjaz/core && npm run dev -w @enjaz/admin\"",
+    "build": "npm run build -w @enjaz/public && npm run build -w @enjaz/admin",
+    "start": "concurrently -n public,admin \"npm run start -w @enjaz/public\" \"npm run start -w @enjaz/admin\"",
+    "migrate": "npm run migrate -w @enjaz/core",
+    "seed": "npm run seed -w @enjaz/core",
+    "backup": "npm run backup -w @enjaz/core",
+    "typecheck": "npm run typecheck -w @enjaz/core && npm run typecheck -w @enjaz/public && npm run typecheck -w @enjaz/admin"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "concurrently": "^9.2.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

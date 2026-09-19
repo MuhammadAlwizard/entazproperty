@@ -1,0 +1,25 @@
+{
+  "name": "@enjaz/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./categories": "./src/categories.ts",
+    "./session": "./src/session.ts",
+    "./csp": "./src/csp.ts"
+  },
+  "scripts": {
+    "dev-db": "tsx --env-file=../../.env src/cli/dev-db.ts",
+    "wait-db": "tsx --env-file=../../.env src/cli/wait-db.ts",
+    "migrate": "tsx --env-file=../../.env src/cli/migrate.ts",
+    "seed": "tsx --env-file=../../.env src/cli/seed.ts",
+    "backup": "tsx --env-file=../../.env src/cli/backup.ts",
+    "typecheck": "tsc --noEmit",
+    "import-json": "tsx --env-file=../../.env src/cli/import-json.ts"
+  },
+  "dependencies": {
+    "mysql2": "^3.24.4"
+  },
+  "devDependencies": {}
+}
