@@ -10,6 +10,8 @@ Dua website terpisah yang membaca satu database yang sama.
 
 Port 3000/3001 sengaja tidak dipakai karena bentrok dengan proyek lain di mesin ini.
 
+> **Kena masalah deploy, tampilan HP, atau alat (Git Bash, Python, Edge)? Baca dulu bagian 'Pelajaran mahal: masalah, penyebab, solusi' di paling bawah file ini.** Isinya gejala yang benar-benar terjadi beserta penyebab dan solusinya, jangan mengulang percobaan yang sudah gagal.
+
 Stack: Next.js 16 (App Router), React 19, MySQL/MariaDB (`mysql2`), CSS biasa (tanpa Tailwind).
 Next 16 punya breaking change. Baca `node_modules/next/dist/docs/` sebelum menulis kode Next (mis. `middleware.ts` sekarang `proxy.ts`, `params` dan `searchParams` berupa Promise).
 
@@ -154,3 +156,114 @@ Dua app Node.js terpisah di satu paket hosting, satu database MySQL bersama. Han
 - `getClientIp` membaca `x-forwarded-for`. Itu bisa dipercaya karena app memang di belakang proxy Hostinger (`hcdn`).
 - Permintaan prefetch Next ke beranda Indonesia (`/?_rsc=...`) dijawab 404 (juga di server hidup). Tidak terlihat oleh pengunjung karena Next lalu memuat halaman biasa. Belum diperbaiki, kemungkinan berkaitan dengan penulisan ulang `/` ke `/id` di `proxy.ts`.
 - Server Actions Next memeriksa Origin. Belum ada masalah, tapi kalau muncul 'Invalid Server Actions request', atur `experimental.serverActions.allowedOrigins`.
+
+## Pelajaran mahal: masalah, penyebab, solusi (baca sebelum menebak)
+
+Semua ini benar-benar terjadi dan menghabiskan waktu. Bentuknya **gejala, penyebab, solusi**. Kalau gejalanya mirip, mulai dari sini, jangan mengulang percobaan yang sudah gagal.
+
+### A. Deploy dan Hostinger
+
+**1. Deploy 'Selesai' tapi alamat menjawab 403, log runtime kosong.**
+- Penyebab: app dibuat dari repo monorepo mentah (Root directory `./`, preset Other). 'Selesai' hanya berarti proses deploy berjalan, bukan aplikasinya menyala.
+- Solusi: pakai cabang `deploy` berisi hasil build (lihat bagian Deploy). Cara cepat membedakan: kalau `robots.txt` di alamat itu berisi `Disallow` untuk Googlebot dan halaman 404-nya bertanggal lama, itu file bawaan Hostinger, BUKAN aplikasi kita.
+
+**2. 503 Service Unavailable.** App sudah terdaftar tapi prosesnya tidak menjawab. Buka **Log runtime**, jangan menebak. Semua penyebab di bawah muncul di sana.
+
+**3. `Error: Cannot find module 'next'`.** Hostinger membuang semua folder `node_modules` dari yang diunggah lalu menjalankan `npm install` sendiri. `package.json` di cabang `deploy` WAJIB mencantumkan `dependencies` (`next`, `react`, `react-dom`, `mysql2`, versi persis). Membungkus `node_modules` di zip atau git tidak berguna.
+
+**4. `Failed to load external module mysql2-3d80...: Cannot find module`.** Next (Turbopack) memberi nama berhash pada paket eksternal dan menyimpan aliasnya di `.next/node_modules`, yang juga dibuang Hostinger. Pembungkus `server.js` memetakan `mysql2-<16 hex>` kembali ke `mysql2`. Jangan menghapus pembungkus itu.
+
+**5. `ERROR: package.json file not found` saat build.** Root directory masih `./`, padahal di cabang `deploy` `package.json` hanya ada di `public/` dan `admin/`. Ubah Root directory (halaman Penempatan > Pengaturan dan deploy ulang).
+
+**6. Preset Next.js menghasilkan build gagal atau app tidak jalan.** Preset itu mencari folder `.next` di root. Pilih **Other**, biarkan Direktori output KOSONG (jangan mengetik 'other' di kolom output, itu pernah terjadi), Entry file `server.js`, Build command `npm run build` (script itu sengaja tidak melakukan apa-apa). Di jalur unggah zip, isian bawaan Build command adalah `npm run start`: itu menyalakan server saat build lalu menggantung, ganti.
+
+**7. Halaman 500 dan log `Access denied for user ...@'::1'`.**
+- Penyebab: `localhost` diterjemahkan Node 22 menjadi IPv6 `::1`.
+- Solusi: host `127.0.0.1`. Kalau lognya jadi `@'127.0.0.1'` dan masih ditolak, berarti PASSWORD tidak cocok. Di Hostinger akun database dibedakan per alamat asal (`localhost`, `127.0.0.1`, `::1` adalah akun berbeda dengan password berbeda), jadi mengganti password di satu tempat tidak menjamin yang lain. Password diganti lewat phpMyAdmin (dibuka dari hPanel, masuk otomatis) tab SQL: `SET PASSWORD = PASSWORD('...');`. `ALTER USER` ditolak (tidak punya hak CREATE USER).
+
+**8. Environment berisi nilai lokal.** Berkali-kali tertempel isi `.env` lokal (`mysql://root@127.0.0.1:3307/enjaz`, `http://localhost:3100`). Cek isinya di halaman Variabel environment sebelum menyalahkan yang lain. App public hanya butuh 2 variabel (`DATABASE_URL`, `SITE_URL`), jangan diberi variabel admin. `SITE_URL` wajib berawalan `https://`. Setiap perubahan environment butuh **Simpan dan deploy ulang**.
+
+**9. Form 'Buat Database MySQL dan Database User' di hPanel menghasilkan password yang tidak cocok.** Penyebab tidak pasti (diduga isi otomatis peramban). Klik ikon mata di kolom password untuk melihat apa yang benar-benar terisi, atau ganti password lewat `SET PASSWORD` (poin 7).
+
+**10. phpMyAdmin: 'redirected you too many times' (ERR_TOO_MANY_REDIRECTS).** Cookie lama. Buka lewat jendela Incognito dan lewat tombol 'Buka phpMyAdmin' di hPanel, jangan mengetik alamat `auth-db...hstgr.io` langsung.
+
+**11. Header `Content-Security-Policy` kita hilang di server hidup.** CDN Hostinger (`hcdn`) menggantinya menjadi `upgrade-insecure-requests` saja. Header lain (HSTS, `X-Frame-Options`, dst) tetap lewat. Solusinya tag `<meta http-equiv>` (lihat bagian Keamanan). Cara mengeceknya: `curl -I` ke alamat hidup dan bandingkan dengan yang dikirim aplikasi.
+
+**12. File statis di `public/` (mis. `vh.html`) menjawab 404.** `proxy.ts` menulis ulang setiap path yang tidak ada di `matcher` menjadi `/id/...`. Yang lolos hanya `uploads`, `_next/static`, `_next/image`, `icon.png`, `logo-*.png`, `og.png`, `robots.txt`, `sitemap.xml`. Tambah file statis baru ke pengecualian matcher, atau taruh di `_next/static/`.
+
+**13. Push ke `deploy` langsung tayang.** Hostinger deploy otomatis dalam 1 sampai 3 menit. Jangan push build yang belum diuji. Cara memastikan deploy sudah masuk: bandingkan nama file CSS berhash di halaman hidup dengan yang ada di build, atau cari teks baru di CSS/HTML hidup dengan `curl`.
+
+**14. Dua app berarti dua alamat sementara.** Itu gratis. Untuk klien: satu domain, public di domain utama dan admin di subdomain (`admin.domain.com`), tanpa biaya tambahan. Setelah domain asli terhubung, ganti `SITE_URL` (dan `PUBLIC_SITE_URL` di admin) lalu deploy ulang.
+
+**15. `PORT` tidak diisi di server.** Log menampilkan `0.0.0.0:3000`, dan pembungkus Hostinger (`lsnode.js`) yang mengarahkan lalu lintas. Jangan menulis port di kode.
+
+**16. Cara mendiagnosis koneksi database di server yang tidak bisa dijangkau dari luar.** Pernah dipakai `diag.js` sementara sebagai pengganti aplikasi: server kecil yang, hanya dengan `?k=<token>` (hash token di kode), mencoba beberapa cara menyambung (host, IPv6, unix socket, tanpa nama database) dan melaporkan kode error tanpa mencetak password. Laporannya membedakan 'password salah' dari 'host salah' dalam satu kali deploy. Hapus lagi setelah selesai.
+
+### B. iPhone dan tampilan HP
+
+**17. Hero berhenti sekitar 100px sebelum dasar layar iPhone; bagian berikutnya mengintip.** `100svh` adalah tinggi dengan semua bilah browser terbuka, sedangkan di iPhone bilahnya melayang dan menciut. Sekarang `100lvh` (fallback `100vh`), teks dan penanda foto diberi padding bawah ekstra di layar <= 600px supaya tidak tertutup bilah, dan HP mendatar (`max-height: 520px`) punya tata letak ringkas. Emulasi desktop TIDAK bisa meniru bilah iOS: hasil akhir harus dilihat pemilik di HP asli.
+
+**18. Foto hero mendatar terpotong di HP.** Hero penuh layar memakai `object-fit: cover`: foto 16:9 di layar 9:19 kehilangan sekitar 70% lebar. Bukan bug. Solusinya set foto berdiri terpisah (`heroImagesMobile`, lihat aturan bisnis 6).
+
+**19. Cara melihat masalah tata letak HP tanpa perangkatnya.** Minta pemilik mengirim screenshot dari HP-nya (pemilik biasanya membuka lewat browser di dalam WhatsApp). Kalau perlu angka, taruh halaman ukur sementara yang menampilkan `innerHeight`, `visualViewport.height`, tinggi `100vh/svh/lvh/dvh`, dan `safe-area-inset` (taruh di `_next/static/`, lihat poin 12), minta pemilik membukanya, lalu hapus.
+
+**20. `<picture>` dan preload ganda.** Gambar pertama dengan `fetchPriority="high"` membuat React menyisipkan `<link rel="preload">` untuk foto lebar, sehingga HP mengunduh dua foto. Slide yang punya versi HP tidak diberi `fetchPriority="high"`.
+
+### C. Kode (Next 16, keamanan, data)
+
+**21. `robots.txt` menulis `localhost:3000` di produksi.** Route metadata di-render saat build dengan `SITE_URL` bawaan. Diberi `export const dynamic = 'force-dynamic'` (`sitemap.ts` juga).
+
+**22. CSP meta 'tidak bekerja': `frame-ancestors` masih ada di dalamnya.** Penyebabnya karakter BACKSPACE tak terlihat di dalam regex, hasil menulis file lewat skrip Python dengan `\b` di string biasa (Python mengubahnya jadi backspace). Fungsi terlihat benar di layar tapi tidak pernah cocok. Diketahui dari `od -c` dan dari menjalankan fungsinya langsung. Selalu uji fungsi hasil tulisan skrip, jangan hanya membacanya.
+
+**23. Header internal tidak bisa dipalsukan.** `proxy.ts` selalu menimpa `x-nonce` dan `x-csp-meta` pada permintaan yang lewat matcher, jadi permintaan pengunjung yang memuat header itu tidak berpengaruh (sudah diuji).
+
+**24. Loop pengalihan setelah logout di produksi.** Cookie `__Host-` hanya bisa ditimpa dengan atribut yang sama (`Secure`, `Path=/`). Menghapusnya harus set ulang dengan `maxAge: 0` dan atribut yang sama, dan `proxy.ts` tidak boleh mengalihkan `/login`.
+
+**25. Uji form Server Action gagal 'diam-diam'.** Mengisi dan menekan tombol sebelum halaman selesai hydration membuat nilai hilang. Tambahkan jeda 1,5 sampai 2 detik setelah membuka halaman berformulir sebelum mengetik.
+
+**26. Halaman `/?_rsc=...` (prefetch beranda Indonesia) menjawab 404.** Masalah lama, juga di server hidup, tidak terlihat pengunjung. Belum diperbaiki.
+
+**27. Memilih kolom yang salah di uji.** Halaman Pengaturan punya DUA `input[name=email]` (email kontak perusahaan dan email login). Skrip uji harus menargetkan yang benar, dan lebih baik nama kolomnya dibuat unik di kode berikutnya.
+
+### D. Lingkungan Windows dan Git Bash (jebakan alat)
+
+**28. Git Bash mengubah argumen berawalan `/` menjadi path Windows** (`/` menjadi `C:/Program Files/Git/`). Untuk argumen yang berupa URL path atau path yang dikirim ke program Windows (Edge, Node), pakai `MSYS_NO_PATHCONV=1` dan `cygpath -m <path>` untuk mendapat bentuk `C:/...`.
+
+**29. Python (Windows) dan Node tidak melihat `/tmp` milik Git Bash.** Simpan berkas kerja di folder scratchpad dengan path Windows lengkap.
+
+**30. Heredoc tanpa kutip (`<<EOF`) memakan backtick dan `$(...)`.** Skrip JavaScript berisi template string jadi rusak diam-diam (fungsi kosong). Pakai `<<'EOF'` (dengan kutip) atau tulis berkas dengan alat Write.
+
+**31. Menulis kode lewat string Python.** `\b` menjadi backspace, `\n` menjadi baris baru sungguhan di tengah kode (`join('\n')` rusak). Susun garis miring dengan `chr(92)`, atau tulis berkas apa adanya lewat Write, lalu periksa dengan `grep -P '[\x00-\x08]'`.
+
+**32. `assemble.mjs` gagal `EPERM` menghapus `out/`.** Server uji masih memakai folder itu. Hentikan proses di port 3100 dan 3101 dulu. Kalau tidak, uji berikutnya diam-diam membaca build LAMA (pernah terjadi: tombol tampak tidak diperbaiki padahal build belum diganti).
+
+**33. Edge headless untuk uji browser.** Port debug (`--remote-debugging-port`) bentrok kalau proses lama masih hidup: pakai port berbeda per skrip dan matikan sisa `msedge`. Permintaan pertama ke server yang baru menyala sering memberi angka aneh (hydration, pemanasan): ulangi sebelum menyimpulkan.
+
+**34. OneDrive menyinkronkan folder proyek.** Database lokal (MariaDB portabel) sengaja di `%LOCALAPPDATA%`. Folder `deploy/` (gitignored) berisi rahasia dan tetap ikut tersinkron ke cloud: hapus `admin.env`, `COPY-PASTE.txt`, dan sejenisnya begitu selesai dipakai.
+
+### E. Cara menguji sebelum push (urutan yang terbukti)
+
+1. `npm run typecheck` dari root (menjalankan ketiga paket).
+2. Salin berkas yang berubah ke `enjaz-deploy/src` (termasuk berkas BARU, `git diff` saja tidak menampilkannya, pakai `git status --porcelain`), build kedua app, `node assemble.mjs`.
+3. Nyalakan hasil rakitan (`out/public`, `out/admin`) dengan database lokal kosong dan `SEED_SAMPLE=1`, uji di Edge lewat CDP: alur admin, tampilan public tiga bahasa, CSP, dan regresi. Untuk CSP, uji lewat proksi yang mengganti header seperti Hostinger.
+4. Kalau ada bug di alat uji, buktikan bahwa uji itu bisa mendeteksi masalahnya (kontrol tanpa CSP, injeksi yang benar-benar berjalan di halaman tanpa kebijakan) sebelum percaya hasil hijau.
+5. `node branch.mjs`, periksa isi cabang (tidak ada `diag.js`, `vh.*`, `.env`), commit dan push `main` lalu `deploy`.
+6. Tunggu deploy, lalu verifikasi di server hidup dengan `curl` (status, isi, CSS berhash).
+
+Skrip pengemas (`assemble.mjs`, `branch.mjs`) ada di `C:\Users\ACER\enjaz-deploy` DI LUAR repo, dan skrip uji browser hanya ada di folder sementara. **Keduanya belum masuk git.** Kalau laptop hilang, alur ini hilang. Sebaiknya dipindah ke `tools/` di repo.
+
+### F. Peta hPanel (tempat menemukan sesuatu)
+
+- Membuat app: **Website > Buat website > Node.js Apps > Lanjutkan dengan GitHub**, pilih repo, atur branch, Root directory, preset, build, environment, lalu Deploy. Alamat sementara app baru tertulis di layar itu ('Deploy ke ...').
+- Di dalam app (menu kiri): **Dashboard**, **Penempatan** (riwayat deploy, klik baris untuk log build; tombol pengaturan membuka 'Pengaturan dan deploy ulang' tempat mengubah branch, Root directory, preset, build, dan environment, lalu 'Simpan dan deploy ulang'), **Variabel environment**, **Log runtime**, **Domain** ('Hubungkan domain').
+- Database: **Database > Manajemen** (buat database dan user, daftar), **phpMyAdmin** (tombol 'Buka phpMyAdmin', masuk otomatis), **Remote MySQL** (daftar IP yang diizinkan harus KOSONG).
+- Kotak pencarian di menu kiri MENYARING menu (kata 'mana' pernah menyembunyikan menu Node.js). Kosongkan kalau menu tampak tidak lengkap.
+- Ikon **JS** di daftar Website menandakan app Node.js.
+
+### G. Cara bekerja dengan pemilik proyek
+
+- Beri instruksi **satu langkah per pesan**, bahasa Indonesia sederhana, nilai yang harus ditempel dalam blok kode, lalu minta screenshot. Penjelasan panjang berlapis membuat langkah terlewat (ini penyebab utama deploy pertama memakan puluhan putaran).
+- Screenshot pemilik masuk sebagai berkas di `C:\Users\ACER\Downloads\Cuplikan layar ...png`. Kalau pesan datang tanpa isi, cek berkas terbaru di folder itu.
+- Aturan global: jangan setuju hanya untuk setuju, beri nilai 0 sampai 10 pada ide, katakan 'itu salah' kalau memang salah, dan akui kalau tidak yakin.
+- Aku tidak boleh mengetik password ke form web. Password boleh dibagikan di chat atas izin pemilik, tapi sebaiknya diganti setelahnya. Nilai yang harus ditempel ke form, siapkan dalam berkas atau clipboard agar pemilik tinggal menempel.
+- Push ke GitHub sudah diizinkan pemilik tanpa bertanya, tapi uji lokal dulu (poin E). Pekerjaan pengemasan berada di folder terpisah, bukan di proyek utama.
