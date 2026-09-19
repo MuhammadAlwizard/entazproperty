@@ -159,29 +159,14 @@ Dua app Node.js terpisah di satu paket hosting, satu database MySQL bersama. Han
 
 ## Aturan repo publik (repo ini PUBLIK dan dipajang di LinkedIn)
 
-Repo `MuhammadAlwizard/entazproperty` terbuka untuk siapa saja dan dipakai sebagai portofolio, sedangkan isinya proyek klien nyata (PT Enjaz Instan Properti). Jadi aturannya: **yang dipajang harus bagus dilihat, dan tidak ada yang rahasia atau pribadi.** Aturan ini dijaga skrip `scripts/check-public.mjs` (`npm run check:public`), bukan hanya catatan.
+Aturan umum untuk SEMUA proyek (apa yang wajib ada, apa yang dilarang, proses sebelum push) ada di file global `~/.claude/CLAUDE.md`, bagian **Public GitHub repos**. Jangan diulang di sini. Jalankan `npm run check:public` sebelum push (hook `.git/hooks/pre-push` lokal juga menjalankannya, dan hook itu tidak ikut git). Skrip `scripts/check-public.mjs` di repo ini adalah salinan dari `~/.claude/tools/check-public.mjs`.
 
-**Wajib ada di repo**
-- `README.md` (apa ini, fitur, tangkapan layar dari data contoh, tech stack, cara menjalankan, status jujur termasuk yang belum ada), `.gitignore`, `.env.example` (hanya nilai contoh), `package.json` dan `package-lock.json`, seluruh kode sumber dan migrasi, `CLAUDE.md` (tanpa data pribadi), dan `scripts/check-public.mjs`.
-- `LICENSE` belum dipilih (keputusan pemilik). Tanpa LICENSE, semua hak tetap dimiliki penulis, dan itu aman sebagai bawaan. README harus menyebut bahwa logo dan nama perusahaan milik klien.
-
-**Boleh ada**
-- Kode, data contoh yang jelas palsu (nama fiktif, foto acak picsum), logo klien di `brand/` dan folder `public` tiap app (**minta izin klien** sebelum dipajang, atau ganti dengan placeholder), tangkapan layar dari data contoh di `docs/screenshots/`, dan cabang `deploy` (hasil build yang dihasilkan otomatis, tanpa rahasia).
-
-**Dilarang masuk (dijaga skrip, push ditolak kalau melanggar)**
-- Berkas `.env` selain `.env.example`; password, token, atau kunci apa pun; `DATABASE_URL` dengan password sungguhan.
-- Ekspor atau cadangan database (`.sql`, `backups/`, `data/`), folder `deploy/`, arsip (`.zip`, `.tar`), berkas kunci (`.pem`, `.key`).
-- Alamat email pribadi atau klien dan nomor telepon nyata (yang boleh hanya `@example.com` dan nomor contoh seperti `+62 812 3456 7890`).
-- Nama user atau database akun hosting (`u123456789_...`) dan jalur Windows pribadi. Tulis `%USERPROFILE%`, bukan nama pengguna.
-- Berkas mentah tidak bernama jelas: tangkapan layar (`Cuplikan layar ...`), foto WhatsApp, foto kamera. Ganti nama dan taruh di `docs/screenshots/` kalau memang untuk dipajang.
-- Hasil build dan pustaka terpasang di cabang `main` (`.next`, `node_modules`, `out`, `dist`).
-
-**Cara kerja**
-- Jalankan `npm run check:public` sebelum push. Di klon ini terpasang juga hook `.git/hooks/pre-push` (tidak ikut git, jadi pasang ulang di klon baru: buat berkas itu berisi `node scripts/check-public.mjs || exit 1`).
-- Menghapus berkas TIDAK menghapusnya dari riwayat git. Kalau sesuatu yang rahasia pernah ter-commit, **ganti rahasianya dulu** (password, token), baru pertimbangkan menulis ulang riwayat (force push, merepotkan dan berisiko). Riwayat repo ini sudah dipindai pada 2026-09-20 dan bersih dari rahasia.
-- Email pada commit terlihat publik. Commit lama memakai email pribadi pemilik, dan email itu pernah sama dengan email login admin, jadi ganti email login admin ke alamat yang tidak pernah muncul di git (Pengaturan > Email untuk masuk). Untuk commit baru pakai alamat `noreply` GitHub (`git config user.email ID+username@users.noreply.github.com`).
-- Cabang `deploy` sengaja publik supaya Hostinger bisa mengambilnya. Kalau ingin `main` terlihat bersih sebagai portofolio dan hasil build tidak dipajang, pindahkan `deploy` ke repo privat terpisah, lalu arahkan ulang kedua app di hPanel (10 sampai 15 menit, ada risiko salah pengaturan).
-- Pengaturan di sisi GitHub (bukan berkas): isi Description, Topics (`nextjs`, `typescript`, `mysql`, `i18n`, `rtl`), sematkan repo di profil, pasang gambar pratinjau sosial, dan matikan Wiki dan Projects kalau tidak dipakai.
+Yang khusus proyek ini:
+- Riwayat repo dipindai pada 2026-09-20 dan bersih dari rahasia. Berkas yang dihapus dari repo pada hari itu (`sewain.html`, foto WhatsApp logo mentah) masih ada di riwayat dan tidak sensitif.
+- Logo dan nama PT Enjaz adalah milik klien. Minta izin klien sebelum dipajang, atau ganti logo di repo dengan placeholder. `LICENSE` belum dipilih pemilik (tanpa LICENSE semua hak dilindungi).
+- Email pribadi pemilik terlihat publik di commit lama dan sempat sama dengan email login admin. Ganti email login admin ke alamat yang tidak pernah muncul di git (Pengaturan > Email untuk masuk), dan pakai alamat `noreply` GitHub untuk commit baru.
+- Cabang `deploy` sengaja publik supaya Hostinger bisa mengambilnya. Kalau ingin `main` bersih sebagai portofolio, pindahkan `deploy` ke repo privat terpisah lalu arahkan ulang kedua app di hPanel (10 sampai 15 menit, ada risiko salah pengaturan). Hook pre-push tidak mencakup klon `enjaz-deploy/gitbranch`.
+- Pengaturan di sisi GitHub yang harus dilakukan pemilik: Description, Topics (`nextjs`, `typescript`, `mysql`, `i18n`, `rtl`), sematkan repo di profil, gambar pratinjau sosial.
 
 ## Pelajaran mahal: masalah, penyebab, solusi (baca sebelum menebak)
 
