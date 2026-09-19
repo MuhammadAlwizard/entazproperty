@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { baseSecurityHeaders, buildCsp, newNonce } from '@enjaz/core/csp';
+import { baseSecurityHeaders, buildCsp, newNonce, cspForMeta } from '@enjaz/core/csp';
 import { DEFAULT_LOCALE, type Locale } from '@/i18n/config';
 
 /**
@@ -34,6 +34,7 @@ export function proxy(req: NextRequest) {
 
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set('x-nonce', nonce);
+  requestHeaders.set('x-csp-meta', cspForMeta(csp) ?? ''); // the same policy for the <meta> tag in the layout
   requestHeaders.set('x-locale', locale);
   requestHeaders.set('x-pathname', barePath);
   requestHeaders.set('Content-Security-Policy', csp);

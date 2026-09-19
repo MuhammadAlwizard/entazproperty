@@ -92,3 +92,29 @@ export function PasswordForm({ action }: { action: Action }) {
     </form>
   );
 }
+
+export function EmailForm({ action, current }: { action: Action; current: string }) {
+  const [state, formAction] = useActionState<FormState, FormData>(action, {});
+  const err = state.errors ?? {};
+  return (
+    <form action={formAction} className="form-card" autoComplete="off">
+      {state.ok && <p className="notice notice-ok" role="status">{state.ok}</p>}
+      <fieldset className="group">
+        <legend>Email untuk masuk</legend>
+        <p className="muted small">Email yang dipakai sekarang: <strong>{current}</strong></p>
+        <label className="field">
+          <span>Email baru</span>
+          <input name="email" type="email" autoComplete="off" maxLength={200} required />
+          {err.email && <em className="field-error">{err.email}</em>}
+        </label>
+        <label className="field">
+          <span>Password saat ini</span>
+          <input name="password" type="password" autoComplete="current-password" required />
+          <small className="hint">Diminta untuk memastikan ini benar-benar kamu. Perangkat lain akan otomatis keluar.</small>
+          {err.password && <em className="field-error">{err.password}</em>}
+        </label>
+      </fieldset>
+      <div className="form-actions"><SubmitButton>Ganti email</SubmitButton></div>
+    </form>
+  );
+}

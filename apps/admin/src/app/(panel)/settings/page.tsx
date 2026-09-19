@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { getSettings, listAdminSessions } from '@enjaz/core';
 import { requireAdmin } from '@/lib/auth';
-import { PasswordForm, SettingsForm } from './SettingsForms';
-import { changePasswordAction, revokeOtherSessionsAction, saveSettingsAction } from './actions';
+import { EmailForm, PasswordForm, SettingsForm } from './SettingsForms';
+import { changeEmailAction, changePasswordAction, revokeOtherSessionsAction, saveSettingsAction } from './actions';
 
 export const metadata: Metadata = { title: 'Pengaturan' };
 
@@ -38,6 +38,12 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       {!session.mustChangePassword && <SettingsForm settings={settings} action={saveSettingsAction} />}
       <div style={{ height: 32 }} />
       <PasswordForm action={changePasswordAction} />
+      {!session.mustChangePassword && (
+        <>
+          <div style={{ height: 32 }} />
+          <EmailForm action={changeEmailAction} current={session.email} />
+        </>
+      )}
 
       {!session.mustChangePassword && (
         <section className="form-card" style={{ marginTop: 32 }} aria-labelledby="cadangan-title">
@@ -45,7 +51,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <legend id="cadangan-title">Cadangan data</legend>
             <p className="muted small">
               Unduh semua isi website (listing, testimoni, pengaturan) sebagai satu file. Password tidak ikut. Foto tidak ikut di file ini,
-              simpan cadangan penuh lewat penyedia database (Supabase atau Neon) atau perintah <code>npm run backup</code>.
+              simpan cadangan penuh lewat backup database di hosting atau perintah <code>npm run backup</code>.
             </p>
             <a className="btn btn-primary" href="/backup" style={{ alignSelf: 'flex-start' }}>Unduh cadangan</a>
           </fieldset>

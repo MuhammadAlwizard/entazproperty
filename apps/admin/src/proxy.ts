@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { verifySignedToken } from '@enjaz/core/session';
-import { baseSecurityHeaders, buildCsp, newNonce } from '@enjaz/core/csp';
+import { baseSecurityHeaders, buildCsp, newNonce, cspForMeta } from '@enjaz/core/csp';
 import { COOKIE } from '@/lib/cookie';
 
 // First gate only: it rejects requests with no valid cookie signature without touching the database.
@@ -21,6 +21,7 @@ export async function proxy(req: NextRequest) {
   const csp = buildCsp({ nonce, dev });
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set('x-nonce', nonce);
+  requestHeaders.set('x-csp-meta', cspForMeta(csp) ?? ''); // the same policy for the <meta> tag in the layout
   requestHeaders.set('Content-Security-Policy', csp);
 
   const res = NextResponse.next({ request: { headers: requestHeaders } });

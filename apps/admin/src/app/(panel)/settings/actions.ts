@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import {
   MAX_HERO_IMAGES, checkNewPassword, findAdminByEmail, hashPassword, isSafeImage, logAudit, normalizeWhatsapp,
-  parseHeroImages, revokeAdminSessions, saveSettings, updateAdminPassword, verifyPassword,
+  parseHeroImages, revokeAdminSessions, saveSettings, updateAdminEmail, updateAdminPassword, verifyPassword,
 } from '@enjaz/core';
 import { getClientIp, requireAdmin } from '@/lib/auth';
 import type { FormState } from '@/lib/form';
@@ -59,6 +59,28 @@ export async function changePasswordAction(_prev: FormState, fd: FormData): Prom
   await logAudit({ email: admin.email, action: 'password.change', detail: { otherSessionsSignedOut: others }, ip });
   revalidatePath('/', 'layout');
   return { ok: others > 0 ? `Password diganti. ${others} perangkat lain otomatis dikeluarkan.` : 'Password diganti.' };
+}
+
+export async function changeEmailAction(_prev: FormState, fd: FormData): Promise<FormState> {
+  const session = await requireAdmin();
+  const ip = await getClientIp();
+  const password = String(fd.get('password') ?? '');
+  const email = s(fd, 'email').toLowerCase();
+
+  const admin = await findAdminByEmail(session.email);
+  if (!admin || !verifyPassword(password, admin.passwordHash)) {
+    await logAudit({ email: session.email, action: 'email.change.failed', ip });
+    return { errors: { password: 'Password salah.' } };
+  }
+  if (email.length > 200 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { errors: { email: 'Format email tidak valid.' } };
+  if (email === admin.email) return { errors: { email: 'Email baru sama dengan yang sekarang.' } };
+  if (!(await updateAdminEmail(admin.id, email))) return { errors: { email: 'Email itu sudah dipakai admin lain.' } };
+
+  // Anyone holding an old session is signed out; this device keeps working (its session follows the account, not the email).
+  const others = await revokeAdminSessions(admin.id, session.sessionId);
+  await logAudit({ email, action: 'email.change', detail: { from: admin.email, otherSessionsSignedOut: others }, ip });
+  revalidatePath('/', 'layout');
+  return { ok: `Email login diganti menjadi ${email}. Pakai email ini untuk masuk berikutnya.` };
 }
 
 export async function revokeOtherSessionsAction(): Promise<void> {
