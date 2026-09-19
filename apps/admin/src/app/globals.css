@@ -81,10 +81,6 @@ img { display: block; max-width: 100%; }
 .metric-label { font: 600 1.35rem/1.2 var(--font-display), sans-serif; }
 .metric-break { margin-top: 8px; }
 .block h2 { margin-bottom: 14px; }
-.todo { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
-.todo li + li { border-top: 1px solid var(--line); }
-.todo a { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 20px; }
-.todo a:hover { background: var(--bg); }
 
 /* ------------------------------ Listing table ------------------------------ */
 .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
