@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { UPLOAD_ID, type UploadMessages } from './messages';
 import { exec, q1 } from './db';
 
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
@@ -38,10 +39,11 @@ export function stripJpegMetadata(buf: Buffer): Buffer {
 
 export type SaveResult = { ok: true; url: string } | { ok: false; error: string };
 
-export async function saveImage(input: Buffer): Promise<SaveResult> {
-  if (input.length > MAX_UPLOAD_BYTES) return { ok: false, error: 'Ukuran foto maksimal 5 MB.' };
+/** `m` is the wording of the errors (Indonesian by default). */
+export async function saveImage(input: Buffer, m: UploadMessages = UPLOAD_ID): Promise<SaveResult> {
+  if (input.length > MAX_UPLOAD_BYTES) return { ok: false, error: m.tooLarge };
   const kind = detectImage(input);
-  if (!kind) return { ok: false, error: 'Format foto harus JPG, PNG, atau WebP.' };
+  if (!kind) return { ok: false, error: m.badFormat };
   const bytes = kind.ext === 'jpg' ? stripJpegMetadata(input) : input;
   const id = randomUUID();
   await exec('INSERT INTO uploads (id, ext, mime, bytes, size) VALUES (?,?,?,?,?)', [id, kind.ext, kind.mime, bytes, bytes.length]);

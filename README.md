@@ -23,6 +23,7 @@ Built and deployed for a real client. All data in this repository is sample data
 - Three languages with clean URLs (`/`, `/en`, `/ar`), a full RTL layout for Arabic, and an Arabic web font that is only downloaded on Arabic pages.
 
 **Admin panel** (`apps/admin`)
+- The panel itself speaks the same three languages (Indonesian, US English, Arabic with a mirrored right-to-left layout), chosen with a switch on the sidebar and the login page.
 - Create, edit and delete listings, up to 30 photos each, with a required location for villas.
 - Photos are resized and re-encoded in the browser before upload, which also strips EXIF and GPS data. The server checks the real file type and strips metadata again.
 - Testimonials with optional round photos, company contact details, hero photos, office address and map link, and English and Arabic translations for the listing and testimonial texts.

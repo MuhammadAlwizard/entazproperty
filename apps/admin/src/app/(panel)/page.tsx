@@ -1,38 +1,43 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { Plus } from '@phosphor-icons/react/dist/ssr';
-import { CATEGORIES, CATEGORY_CONFIG, countListings } from '@enjaz/core';
+import { CATEGORIES, countListings } from '@enjaz/core';
 import { requireAdmin } from '@/lib/auth';
+import { getI18n } from '@/i18n/server';
+import { catText } from '@/i18n/format';
 
-export const metadata: Metadata = { title: 'Ringkasan' };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getI18n()).d.dashboard.title };
+}
 
 export default async function Dashboard() {
   await requireAdmin();
+  const { d } = await getI18n();
   const counts = await countListings();
 
   return (
     <>
       <header className="page-head">
         <div>
-          <h1>Ringkasan</h1>
-          <p className="muted">Apa yang sedang tampil di website hari ini.</p>
+          <h1>{d.dashboard.title}</h1>
+          <p className="muted">{d.dashboard.lead}</p>
         </div>
-        <Link href="/listings/new" className="btn btn-primary"><Plus size={18} aria-hidden /> Tambah listing</Link>
+        <Link href="/listings/new" className="btn btn-primary"><Plus size={18} aria-hidden /> {d.dashboard.add}</Link>
       </header>
 
       {counts.total === 0 ? (
         <div className="empty-state">
-          <h2>Belum ada listing</h2>
-          <p className="muted">Mulai dengan menambahkan villa, mobil, motor, atau paket tour pertama.</p>
-          <Link href="/listings/new" className="btn btn-primary">Tambah listing pertama</Link>
+          <h2>{d.dashboard.emptyTitle}</h2>
+          <p className="muted">{d.dashboard.emptyText}</p>
+          <Link href="/listings/new" className="btn btn-primary">{d.dashboard.addFirst}</Link>
         </div>
       ) : (
-        <section className="hero-metric" aria-label="Jumlah listing tayang">
+        <section className="hero-metric" aria-label={d.dashboard.metricAria}>
           <p className="metric-number">{counts.published}</p>
           <div>
-            <p className="metric-label">listing tampil di website</p>
+            <p className="metric-label">{d.dashboard.metricLabel}</p>
             <p className="muted metric-break">
-              {CATEGORIES.map((c) => `${CATEGORY_CONFIG[c].short} ${counts.byCategory[c]}`).join('   ·   ')}
+              {CATEGORIES.map((c) => `${catText(d, c).short} ${counts.byCategory[c]}`).join('   ·   ')}
             </p>
           </div>
         </section>

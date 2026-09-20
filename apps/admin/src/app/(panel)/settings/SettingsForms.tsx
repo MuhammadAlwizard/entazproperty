@@ -6,11 +6,14 @@ import { MAX_HERO_IMAGES } from '@enjaz/core/categories';
 import type { FormState } from '@/lib/form';
 import { ImageUploader } from '@/components/ImageUploader';
 import { SubmitButton } from '@/components/SubmitButton';
+import { useI18n } from '@/i18n/client';
 
 type Action = (prev: FormState, fd: FormData) => Promise<FormState>;
 
 export function SettingsForm({ settings, action }: { settings: Settings; action: Action }) {
   const [state, formAction] = useActionState<FormState, FormData>(action, {});
+  const { d } = useI18n();
+  const t = d.settings;
   const err = state.errors ?? {};
   return (
     <form action={formAction} className="form-card">
@@ -18,127 +21,124 @@ export function SettingsForm({ settings, action }: { settings: Settings; action:
       {state.ok && <p className="notice notice-ok" role="status">{state.ok}</p>}
 
       <fieldset className="group">
-        <legend>Kontak</legend>
+        <legend>{t.contact.legend}</legend>
         <label className="field">
-          <span>Nomor WhatsApp</span>
-          <textarea name="whatsapp" rows={4} inputMode="tel" defaultValue={settings.whatsapp} placeholder={'+62 812 3456 7890\n+62 813 3456 7890'} aria-invalid={!!err.whatsapp} />
-          <small className="hint">Satu nomor per baris, maksimal 5. Nomor paling atas dipakai untuk semua tombol pesan di website, semuanya tampil di bagian kontak. Kalau kosong, tombol tidak tampil.</small>
+          <span>{t.contact.whatsapp}</span>
+          <textarea name="whatsapp" rows={4} inputMode="tel" dir="ltr" defaultValue={settings.whatsapp} placeholder={'+62 812 3456 7890\n+62 813 3456 7890'} aria-invalid={!!err.whatsapp} />
+          <small className="hint">{t.contact.whatsappHint}</small>
           {err.whatsapp && <em className="field-error">{err.whatsapp}</em>}
         </label>
         <label className="field">
-          <span>Email</span>
-          <input name="email" type="email" defaultValue={settings.email} />
+          <span>{t.contact.email}</span>
+          <input name="email" type="email" dir="ltr" defaultValue={settings.email} />
           {err.email && <em className="field-error">{err.email}</em>}
         </label>
         <label className="field">
-          <span>Instagram</span>
-          <input name="instagram" defaultValue={settings.instagram} placeholder="@enjazinstan" />
+          <span>{t.contact.instagram}</span>
+          <input name="instagram" dir="ltr" defaultValue={settings.instagram} placeholder="@enjazinstan" />
           {err.instagram && <em className="field-error">{err.instagram}</em>}
         </label>
         <label className="field">
-          <span>Alamat kantor</span>
+          <span>{t.contact.address}</span>
           <textarea name="address" rows={3} maxLength={300} defaultValue={settings.address} />
-          <small className="hint">Tampil di footer dan dipakai untuk peta lokasi kantor di bagian bawah beranda. Tulis lengkap (jalan, kota) supaya petanya tepat.</small>
+          <small className="hint">{t.contact.addressHint}</small>
           {err.address && <em className="field-error">{err.address}</em>}
         </label>
         <label className="field">
-          <span>Link Google Maps kantor (opsional)</span>
-          <input name="mapsUrl" type="url" maxLength={500} defaultValue={settings.mapsUrl} placeholder="https://maps.app.goo.gl/..." />
-          <small className="hint">Buka Google Maps, cari kantor, tekan Bagikan, lalu tempel link-nya di sini. Tombol &quot;Buka di Google Maps&quot; akan menuju titik yang tepat. Kalau kosong, dipakai pencarian dari alamat.</small>
+          <span>{t.contact.mapsUrl}</span>
+          <input name="mapsUrl" type="url" dir="ltr" maxLength={500} defaultValue={settings.mapsUrl} placeholder="https://maps.app.goo.gl/..." />
+          <small className="hint">{t.contact.mapsHint}</small>
           {err.mapsUrl && <em className="field-error">{err.mapsUrl}</em>}
         </label>
       </fieldset>
 
       <fieldset className="group">
-        <legend>Foto hero beranda (layar lebar)</legend>
-        <p className="hint" style={{ marginTop: -6 }}>
-          Foto besar di bagian paling atas beranda untuk laptop, komputer, dan HP yang dipegang mendatar. Kalau lebih dari satu, foto berganti sendiri dengan efek memudar.
-          Kalau hanya satu, foto diam. Gunakan foto lanskap (mendatar), teks di atasnya otomatis diberi lapisan gelap agar terbaca.
-        </p>
+        <legend>{t.hero.legend}</legend>
+        <p className="hint" style={{ marginTop: -6 }}>{t.hero.hint}</p>
         <ImageUploader
           name="heroImages"
           initial={settings.heroImages.split('\n').filter(Boolean)}
           max={MAX_HERO_IMAGES}
           maxWidth={1920}
-          firstLabel="Utama"
+          firstLabel="main"
           error={err.heroImages}
         />
       </fieldset>
 
       <fieldset className="group">
-        <legend>Foto hero untuk HP (opsional)</legend>
-        <p className="hint" style={{ marginTop: -6 }}>
-          Dipakai saat layar dipegang berdiri, misalnya HP. Gunakan foto berdiri (portrait), idealnya 1080 x 1920. Tanpa ini, foto layar lebar
-          dipotong kiri dan kanannya di HP. Foto HP ke-1 menggantikan foto ke-1 di layar lebar, ke-2 menggantikan ke-2, dan seterusnya.
-          Kalau dikosongkan atau jumlahnya lebih sedikit, HP memakai foto layar lebar.
-        </p>
+        <legend>{t.heroMobile.legend}</legend>
+        <p className="hint" style={{ marginTop: -6 }}>{t.heroMobile.hint}</p>
         <ImageUploader
           name="heroImagesMobile"
           initial={settings.heroImagesMobile.split('\n').filter(Boolean)}
           max={MAX_HERO_IMAGES}
           maxWidth={1080}
-          firstLabel="Utama"
+          firstLabel="main"
           error={err.heroImagesMobile}
         />
       </fieldset>
 
-      <div className="form-actions"><SubmitButton>Simpan pengaturan</SubmitButton></div>
+      <div className="form-actions"><SubmitButton>{t.save}</SubmitButton></div>
     </form>
   );
 }
 
 export function PasswordForm({ action }: { action: Action }) {
   const [state, formAction] = useActionState<FormState, FormData>(action, {});
+  const { d } = useI18n();
+  const t = d.settings.password;
   const err = state.errors ?? {};
   return (
     <form action={formAction} className="form-card" autoComplete="off">
       {state.ok && <p className="notice notice-ok" role="status">{state.ok}</p>}
       <fieldset className="group">
-        <legend>Ganti password</legend>
+        <legend>{t.legend}</legend>
         <label className="field">
-          <span>Password saat ini</span>
-          <input name="current" type="password" autoComplete="current-password" required />
+          <span>{t.current}</span>
+          <input name="current" type="password" dir="ltr" autoComplete="current-password" required />
           {err.current && <em className="field-error">{err.current}</em>}
         </label>
         <label className="field">
-          <span>Password baru</span>
-          <input name="next" type="password" autoComplete="new-password" minLength={12} required />
-          <small className="hint">Minimal 12 karakter, jangan memuat bagian email, dan jangan kata yang mudah ditebak. Kalimat panjang lebih aman daripada kata rumit.</small>
+          <span>{t.next}</span>
+          <input name="next" type="password" dir="ltr" autoComplete="new-password" minLength={12} required />
+          <small className="hint">{t.hint}</small>
           {err.next && <em className="field-error">{err.next}</em>}
         </label>
         <label className="field">
-          <span>Ulangi password baru</span>
-          <input name="confirm" type="password" autoComplete="new-password" required />
+          <span>{t.confirm}</span>
+          <input name="confirm" type="password" dir="ltr" autoComplete="new-password" required />
           {err.confirm && <em className="field-error">{err.confirm}</em>}
         </label>
       </fieldset>
-      <div className="form-actions"><SubmitButton>Ganti password</SubmitButton></div>
+      <div className="form-actions"><SubmitButton>{t.submit}</SubmitButton></div>
     </form>
   );
 }
 
 export function EmailForm({ action, current }: { action: Action; current: string }) {
   const [state, formAction] = useActionState<FormState, FormData>(action, {});
+  const { d } = useI18n();
+  const t = d.settings.email;
   const err = state.errors ?? {};
   return (
     <form action={formAction} className="form-card" autoComplete="off">
       {state.ok && <p className="notice notice-ok" role="status">{state.ok}</p>}
       <fieldset className="group">
-        <legend>Email untuk masuk</legend>
-        <p className="muted small">Email yang dipakai sekarang: <strong>{current}</strong></p>
+        <legend>{t.legend}</legend>
+        <p className="muted small">{t.current} <strong dir="ltr">{current}</strong></p>
         <label className="field">
-          <span>Email baru</span>
-          <input name="email" type="email" autoComplete="off" maxLength={200} required />
+          <span>{t.newEmail}</span>
+          <input name="email" type="email" dir="ltr" autoComplete="off" maxLength={200} required />
           {err.email && <em className="field-error">{err.email}</em>}
         </label>
         <label className="field">
-          <span>Password saat ini</span>
-          <input name="password" type="password" autoComplete="current-password" required />
-          <small className="hint">Diminta untuk memastikan ini benar-benar kamu. Perangkat lain akan otomatis keluar.</small>
+          <span>{t.password}</span>
+          <input name="password" type="password" dir="ltr" autoComplete="current-password" required />
+          <small className="hint">{t.hint}</small>
           {err.password && <em className="field-error">{err.password}</em>}
         </label>
       </fieldset>
-      <div className="form-actions"><SubmitButton>Ganti email</SubmitButton></div>
+      <div className="form-actions"><SubmitButton>{t.submit}</SubmitButton></div>
     </form>
   );
 }

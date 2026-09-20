@@ -2,6 +2,7 @@ export * from './categories';
 export * from './types';
 export * from './format';
 export * from './validation';
+export * from './messages';
 export * from './queries';
 export * from './uploads';
 export * from './security';

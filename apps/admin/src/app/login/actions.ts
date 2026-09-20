@@ -6,6 +6,7 @@ import {
   clearLoginFailures, findAdminByEmail, hashPassword, isLoginBlocked, logAudit, recordLoginFailure, verifyPassword,
 } from '@enjaz/core';
 import { endSession, getClientIp, startSession } from '@/lib/auth';
+import { getDict } from '@/i18n/server';
 
 export type LoginState = { error?: string };
 
@@ -13,9 +14,10 @@ export type LoginState = { error?: string };
 const DUMMY_HASH = hashPassword('not-a-real-password');
 
 export async function login(_prev: LoginState | undefined, fd: FormData): Promise<LoginState> {
+  const d = await getDict();
   const email = String(fd.get('email') ?? '').trim().toLowerCase().slice(0, 200);
   const password = String(fd.get('password') ?? '').slice(0, 300);
-  if (!email || !password) return { error: 'Isi email dan password.' };
+  if (!email || !password) return { error: d.login.fillBoth };
 
   const ip = await getClientIp();
   const userAgent = (await headers()).get('user-agent') ?? '';
@@ -24,7 +26,7 @@ export async function login(_prev: LoginState | undefined, fd: FormData): Promis
 
   if (await isLoginBlocked(keys)) {
     await logAudit({ email, action: 'login.blocked', ip });
-    return { error: 'Terlalu banyak percobaan. Coba lagi dalam 10 menit.' };
+    return { error: d.login.blocked };
   }
 
   const admin = await findAdminByEmail(email);
@@ -32,7 +34,7 @@ export async function login(_prev: LoginState | undefined, fd: FormData): Promis
   if (!ok || !admin) {
     await recordLoginFailure(keys);
     await logAudit({ email, action: 'login.failed', ip });
-    return { error: 'Email atau password salah.' };
+    return { error: d.login.wrong };
   }
 
   await clearLoginFailures(keys);

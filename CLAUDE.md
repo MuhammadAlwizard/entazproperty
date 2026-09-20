@@ -79,7 +79,21 @@ Ubah aturan di `core`, bukan di salah satu app, supaya public dan admin selalu s
 
 **Menambah bahasa baru:** tambahkan kode di `i18n/config.ts` (`LOCALES`, `LOCALE_META`), buat kamusnya, tambahkan ke `TRANSLATION_LANGS` di `packages/core/src/categories.ts` dan ke `LANGS` di `apps/admin/src/components/TranslationFields.tsx`, lalu rapikan proxy (saat ini hanya `en` dan `ar` yang dikenali sebagai awalan). Bahasa kanan-ke-kiri lain perlu font dan pengujian tampilan sendiri.
 
-**Belum ada:** terjemahan otomatis (butuh layanan AI berbayar), mengingat pilihan bahasa pengunjung (cookie) atau memilih dari bahasa browser, dan bahasa untuk panel admin (admin tetap berbahasa Indonesia). **Teks Arab di kamus dan data contoh ditulis oleh AI, bukan penutur asli. Minta penutur asli untuk membacanya sebelum peluncuran.**
+**Belum ada:** terjemahan otomatis (butuh layanan AI berbayar), mengingat pilihan bahasa pengunjung (cookie) atau memilih dari bahasa browser. Panel admin punya pemilih bahasa sendiri (bagian berikutnya). **Teks Arab di kamus dan data contoh ditulis oleh AI, bukan penutur asli. Minta penutur asli untuk membacanya sebelum peluncuran.**
+
+## Bahasa panel admin: Indonesia, Inggris (AS), Arab
+
+Panel admin memakai tiga bahasa yang sama dengan situs public, tapi mekanismenya berbeda: **pilihan disimpan di cookie `enjaz_admin_lang`** (httpOnly, SameSite=Lax, setahun), bukan di alamat. Panel privat (tidak perlu SEO dan tidak dibagikan), dan awalan `/en` akan merumitkan aturan login. Bawaannya Indonesia. Tombol pemilih (`components/LangSwitch.tsx`, form dengan Server Action `setLocale`, jalan tanpa JavaScript) ada di sidebar dan di halaman masuk.
+
+- **Kamus** ada di `apps/admin/src/i18n/dictionaries/{id,en,ar}.ts`. Bentuk tipe `Dict` adalah bentuk `id.ts`, jadi Inggris dan Arab **wajib punya kunci yang sama persis** (kunci hilang atau berlebih membuat build gagal, sudah dibuktikan). Jangan menulis teks panel langsung di komponen: tambah kunci di ketiga berkas. Placeholder seperti `{n}` diisi `fill()` (`i18n/format.ts`).
+- **Membaca kamus.** Komponen server: `getI18n()` atau `getDict()` (`i18n/server.ts`, membaca cookie). Komponen klien: `useI18n()` lewat `I18nProvider` di `app/layout.tsx`, dan hanya kamus AKTIF yang dikirim ke browser. Judul halaman lewat `generateMetadata`, bukan `metadata` statis.
+- **Pesan dari `core` tidak lagi tertulis mati.** `packages/core/src/messages.ts` memuat jenis dan bawaan Indonesia untuk `ValidationMessages`, `PasswordMessages`, `UploadMessages`. Admin mengoper kamusnya ke `validateListing`, `validateTestimonial`, `checkNewPassword`, dan `saveImage`; label kolom kategori yang disebut dalam pesan lewat opsi `fieldLabel` dan `locationLabel`. Pemanggil yang tidak mengoper apa pun tetap mendapat teks Indonesia.
+- **Kategori.** Nama, satuan harga, label dan petunjuk kolom, dan label opsi pilihan ada di kamus (`categories.<nama>`, dibaca lewat `catText`). Nilai yang DISIMPAN tetap kunci Indonesia (`Matic`, `Lepas kunci`), hanya tampilannya yang diterjemahkan.
+- **Kanan-ke-kiri.** `<html lang dir>` diatur di root layout. CSS admin sepenuhnya memakai properti logis (tidak boleh ada `left`, `right`, `margin-left`, `text-align: left`, dst), font IBM Plex Sans Arabic dimuat hanya saat Arab (`preload: false`), panah di daftar foto dibalik lewat CSS, dan email atau alamat IP memakai `unicode-bidi: plaintext` (terbaca benar tapi rata mengikuti arah halaman). Kolom email, sandi, dan URL tetap `dir="ltr"`.
+- **Format.** Tanggal mengikuti bahasa (Arab memakai angka Latin, `ar-u-nu-latn`), harga `Rp1.200.000` (Indonesia) atau `Rp1,200,000` (Inggris dan Arab).
+- **Satu pesan di proxy.** Jawaban API tanpa sesi (`NEED_LOGIN`) ada di `i18n/config.ts` supaya proxy tidak mengimpor kamus.
+- **Tidak diterjemahkan:** isi data buatan admin (nama listing, testimoni, lokasi) dan nama perusahaan. Teks Arab ditulis dengan bantuan AI dan belum dibaca penutur asli.
+- **Cara mengujinya** (pernah dipakai): ekspor ketiga kamus ke JSON, buka setiap halaman dalam Inggris dan Arab di browser, dan cari sisa potongan teks Indonesia (buang isi `<script>` dan data pengguna dari pembacaan, dan sertakan kontrol bahwa pendeteksi memang menemukan teks Indonesia di halaman Indonesia). Periksa juga pesan galat dari server dan dari API.
 
 ## Keamanan
 

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { verifySignedToken } from '@enjaz/core/session';
 import { baseSecurityHeaders, buildCsp, newNonce, cspForMeta } from '@enjaz/core/csp';
 import { COOKIE } from '@/lib/cookie';
+import { DEFAULT_LOCALE, LANG_COOKIE, NEED_LOGIN, isLocale } from '@/i18n/config';
 
 // First gate only: it rejects requests with no valid cookie signature without touching the database.
 // Pages, server actions and route handlers still call requireAdmin(), which checks the real session.
@@ -12,7 +13,10 @@ export async function proxy(req: NextRequest) {
   // /login is never redirected here: a cookie can have a valid signature but a revoked session, and
   // bouncing between /login and / would loop forever. The login page checks the real session itself.
   if (pathname !== '/login' && !token) {
-    if (pathname.startsWith('/api/')) return NextResponse.json({ error: 'Silakan masuk dulu.' }, { status: 401 });
+    if (pathname.startsWith('/api/')) {
+      const lang = req.cookies.get(LANG_COOKIE)?.value;
+      return NextResponse.json({ error: NEED_LOGIN[isLocale(lang) ? lang : DEFAULT_LOCALE] }, { status: 401 });
+    }
     return NextResponse.redirect(new URL('/login', req.url));
   }
 

@@ -2,6 +2,8 @@
 
 import { useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ImageSquare, Star, X } from '@phosphor-icons/react';
+import { useI18n } from '@/i18n/client';
+import { fill } from '@/i18n/format';
 
 type Props = {
   /** Form field name; one hidden input per photo is submitted under this name, in display order */
@@ -11,8 +13,8 @@ type Props = {
   error?: string;
   /** Photos wider than this are shrunk in the browser before upload */
   maxWidth?: number;
-  /** Label for the first photo, e.g. "Sampul" or "Utama" */
-  firstLabel?: string;
+  /** Which word the first photo gets: 'cover' (listings) or 'main' (hero photos) */
+  firstLabel?: 'cover' | 'main';
 };
 
 /**
@@ -39,7 +41,10 @@ async function shrink(file: File, maxWidth: number): Promise<File> {
   }
 }
 
-export function ImageUploader({ name, initial, max, error, maxWidth = 1600, firstLabel = 'Sampul' }: Props) {
+export function ImageUploader({ name, initial, max, error, maxWidth = 1600, firstLabel = 'cover' }: Props) {
+  const { d } = useI18n();
+  const u = d.uploader;
+  const label = u[firstLabel];
   const [images, setImages] = useState<string[]>(initial);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState('');
@@ -51,17 +56,17 @@ export function ImageUploader({ name, initial, max, error, maxWidth = 1600, firs
     setProblem('');
     let next = max === 1 ? [] : [...images];
     for (const original of Array.from(files)) {
-      if (next.length >= max) { setProblem(`Maksimal ${max} foto.`); break; }
+      if (next.length >= max) { setProblem(fill(u.maxReached, { max })); break; }
       const file = await shrink(original, maxWidth);
       const fd = new FormData();
       fd.append('file', file);
       try {
         const res = await fetch('/api/upload', { method: 'POST', body: fd });
         const json = (await res.json()) as { url?: string; error?: string };
-        if (!res.ok || !json.url) { setProblem(json.error ?? 'Foto gagal diunggah.'); continue; }
+        if (!res.ok || !json.url) { setProblem(json.error ?? u.failed); continue; }
         next = [...next, json.url];
       } catch {
-        setProblem('Koneksi terputus saat mengunggah. Coba lagi.');
+        setProblem(u.offline);
       }
     }
     setImages(next);
@@ -89,19 +94,19 @@ export function ImageUploader({ name, initial, max, error, maxWidth = 1600, firs
       <ul className="thumbs">
         {images.map((src, i) => (
           <li key={`${i}-${src}`} className="thumb">
-            <img src={src} alt={`Foto ${i + 1}`} />
-            {i === 0 && max > 1 && <span className="thumb-cover">{firstLabel}</span>}
+            <img src={src} alt={fill(u.photo, { n: i + 1 })} />
+            {i === 0 && max > 1 && <span className="thumb-cover">{label}</span>}
             {max > 1 && (
               <div className="thumb-actions">
-                <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label={`Geser foto ${i + 1} ke kiri`}><ArrowLeft size={14} aria-hidden /></button>
-                <button type="button" onClick={() => move(i, 1)} disabled={i === images.length - 1} aria-label={`Geser foto ${i + 1} ke kanan`}><ArrowRight size={14} aria-hidden /></button>
-                {i > 0 && <button type="button" onClick={() => makeFirst(i)} aria-label={`Jadikan foto ${i + 1} sebagai ${firstLabel.toLowerCase()}`} title={`Jadikan ${firstLabel.toLowerCase()}`}><Star size={14} aria-hidden /></button>}
-                <button type="button" onClick={() => remove(i)} aria-label={`Hapus foto ${i + 1}`} className="thumb-remove"><X size={14} aria-hidden /></button>
+                <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label={fill(u.earlier, { n: i + 1 })}><ArrowLeft size={14} aria-hidden /></button>
+                <button type="button" onClick={() => move(i, 1)} disabled={i === images.length - 1} aria-label={fill(u.later, { n: i + 1 })}><ArrowRight size={14} aria-hidden /></button>
+                {i > 0 && <button type="button" onClick={() => makeFirst(i)} aria-label={fill(u.makeFirst, { n: i + 1, label: label.toLowerCase() })} title={fill(u.makeFirstTitle, { label: label.toLowerCase() })}><Star size={14} aria-hidden /></button>}
+                <button type="button" onClick={() => remove(i)} aria-label={fill(u.remove, { n: i + 1 })} className="thumb-remove"><X size={14} aria-hidden /></button>
               </div>
             )}
             {max === 1 && (
               <div className="thumb-actions">
-                <button type="button" onClick={() => remove(i)} aria-label="Hapus foto" className="thumb-remove"><X size={14} aria-hidden /></button>
+                <button type="button" onClick={() => remove(i)} aria-label={u.removeOne} className="thumb-remove"><X size={14} aria-hidden /></button>
               </div>
             )}
           </li>
@@ -110,7 +115,7 @@ export function ImageUploader({ name, initial, max, error, maxWidth = 1600, firs
           <li>
             <button type="button" className="thumb-add" onClick={() => input.current?.click()} disabled={busy}>
               <ImageSquare size={28} aria-hidden />
-              <span>{busy ? 'Mengunggah...' : max === 1 && images.length ? 'Ganti foto' : 'Tambah foto'}</span>
+              <span>{busy ? u.uploading : max === 1 && images.length ? u.replace : u.add}</span>
             </button>
           </li>
         ) : null}
@@ -118,8 +123,8 @@ export function ImageUploader({ name, initial, max, error, maxWidth = 1600, firs
 
       <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple={max > 1} hidden onChange={(e) => onFiles(e.target.files)} />
       <p className="hint">
-        JPG, PNG, atau WebP. Foto besar otomatis dikecilkan ke lebar {maxWidth} px sebelum diunggah.
-        {max > 1 ? ` Foto pertama jadi ${firstLabel.toLowerCase()}, geser panah untuk mengatur urutan.` : ''}
+        {fill(u.hint, { width: maxWidth })}
+        {max > 1 ? ` ${fill(u.hintOrder, { label: label.toLowerCase() })}` : ''}
       </p>
       {(problem || error) && <p className="field-error" role="alert">{problem || error}</p>}
     </div>
