@@ -7,7 +7,8 @@
     ".": "./src/index.ts",
     "./categories": "./src/categories.ts",
     "./session": "./src/session.ts",
-    "./csp": "./src/csp.ts"
+    "./csp": "./src/csp.ts",
+    "./messages": "./src/messages.ts"
   },
   "scripts": {
     "dev-db": "tsx --env-file=../../.env src/cli/dev-db.ts",
