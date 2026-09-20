@@ -3,47 +3,47 @@
     "00f37b995232815116cf0eac3d703d572a1c453717": {
       "workers": {
         "app/(panel)/activity/page": {
-          "moduleId": 30462,
+          "moduleId": 68488,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/listings/[id]/page": {
-          "moduleId": 89162,
+          "moduleId": 71913,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/listings/new/page": {
-          "moduleId": 80742,
+          "moduleId": 96883,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/listings/page": {
-          "moduleId": 50405,
+          "moduleId": 85729,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/page": {
-          "moduleId": 51904,
+          "moduleId": 69574,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/settings/page": {
-          "moduleId": 59015,
+          "moduleId": 28424,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/testimonials/[id]/page": {
-          "moduleId": 13369,
+          "moduleId": 28401,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/testimonials/new/page": {
-          "moduleId": 46620,
+          "moduleId": 60968,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/testimonials/page": {
-          "moduleId": 20338,
+          "moduleId": 52557,
           "async": false,
           "codeHash": null
         }
@@ -54,52 +54,52 @@
     "60e12739b89978e7b546357db9fb3c21b37f10c702": {
       "workers": {
         "app/(panel)/activity/page": {
-          "moduleId": 30462,
+          "moduleId": 68488,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/listings/[id]/page": {
-          "moduleId": 89162,
+          "moduleId": 71913,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/listings/new/page": {
-          "moduleId": 80742,
+          "moduleId": 96883,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/listings/page": {
-          "moduleId": 50405,
+          "moduleId": 85729,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/page": {
-          "moduleId": 51904,
+          "moduleId": 69574,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/settings/page": {
-          "moduleId": 59015,
+          "moduleId": 28424,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/testimonials/[id]/page": {
-          "moduleId": 13369,
+          "moduleId": 28401,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/testimonials/new/page": {
-          "moduleId": 46620,
+          "moduleId": 60968,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/testimonials/page": {
-          "moduleId": 20338,
+          "moduleId": 52557,
           "async": false,
           "codeHash": null
         },
         "app/login/page": {
-          "moduleId": 61592,
+          "moduleId": 94411,
           "async": false,
           "codeHash": null
         }
@@ -107,20 +107,76 @@
       "filename": "apps/admin/src/app/login/actions.ts",
       "exportedName": "login"
     },
-    "40b2dd86f21ef64f15fd036c930c6cacdbb810b068": {
+    "40c23ea383862286db726ff99ba90b066efdeba630": {
       "workers": {
+        "app/(panel)/activity/page": {
+          "moduleId": 68488,
+          "async": false,
+          "codeHash": null
+        },
         "app/(panel)/listings/[id]/page": {
-          "moduleId": 89162,
+          "moduleId": 71913,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/listings/new/page": {
-          "moduleId": 80742,
+          "moduleId": 96883,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/listings/page": {
-          "moduleId": 50405,
+          "moduleId": 85729,
+          "async": false,
+          "codeHash": null
+        },
+        "app/(panel)/page": {
+          "moduleId": 69574,
+          "async": false,
+          "codeHash": null
+        },
+        "app/(panel)/settings/page": {
+          "moduleId": 28424,
+          "async": false,
+          "codeHash": null
+        },
+        "app/(panel)/testimonials/[id]/page": {
+          "moduleId": 28401,
+          "async": false,
+          "codeHash": null
+        },
+        "app/(panel)/testimonials/new/page": {
+          "moduleId": 60968,
+          "async": false,
+          "codeHash": null
+        },
+        "app/(panel)/testimonials/page": {
+          "moduleId": 52557,
+          "async": false,
+          "codeHash": null
+        },
+        "app/login/page": {
+          "moduleId": 94411,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "filename": "apps/admin/src/i18n/actions.ts",
+      "exportedName": "setLocale"
+    },
+    "40b2dd86f21ef64f15fd036c930c6cacdbb810b068": {
+      "workers": {
+        "app/(panel)/listings/[id]/page": {
+          "moduleId": 71913,
+          "async": false,
+          "codeHash": null
+        },
+        "app/(panel)/listings/new/page": {
+          "moduleId": 96883,
+          "async": false,
+          "codeHash": null
+        },
+        "app/(panel)/listings/page": {
+          "moduleId": 85729,
           "async": false,
           "codeHash": null
         }
@@ -131,17 +187,17 @@
     "60ec8f23460ee13e2188d67404b90c9bd3ce4cd343": {
       "workers": {
         "app/(panel)/listings/[id]/page": {
-          "moduleId": 89162,
+          "moduleId": 71913,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/listings/new/page": {
-          "moduleId": 80742,
+          "moduleId": 96883,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/listings/page": {
-          "moduleId": 50405,
+          "moduleId": 85729,
           "async": false,
           "codeHash": null
         }
@@ -152,17 +208,17 @@
     "70d8f8de12dc4e1eea4f3dfd730ae038f7b7c38708": {
       "workers": {
         "app/(panel)/listings/[id]/page": {
-          "moduleId": 89162,
+          "moduleId": 71913,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/listings/new/page": {
-          "moduleId": 80742,
+          "moduleId": 96883,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/listings/page": {
-          "moduleId": 50405,
+          "moduleId": 85729,
           "async": false,
           "codeHash": null
         }
@@ -173,7 +229,7 @@
     "002999d4ddece74848dfcefa261324d035a55baf9f": {
       "workers": {
         "app/(panel)/settings/page": {
-          "moduleId": 59015,
+          "moduleId": 28424,
           "async": false,
           "codeHash": null
         }
@@ -184,7 +240,7 @@
     "60930c9a25ad81152d8ff49d177c04a8793b76c483": {
       "workers": {
         "app/(panel)/settings/page": {
-          "moduleId": 59015,
+          "moduleId": 28424,
           "async": false,
           "codeHash": null
         }
@@ -195,7 +251,7 @@
     "60b8f352591aaa6d08514440dc4f76426294f29b69": {
       "workers": {
         "app/(panel)/settings/page": {
-          "moduleId": 59015,
+          "moduleId": 28424,
           "async": false,
           "codeHash": null
         }
@@ -206,7 +262,7 @@
     "60efecf8f9139ec81c1b1982ba1e524590998afd34": {
       "workers": {
         "app/(panel)/settings/page": {
-          "moduleId": 59015,
+          "moduleId": 28424,
           "async": false,
           "codeHash": null
         }
@@ -217,12 +273,12 @@
     "406ff86995385aa5e462e04c943b2aaf3b69bee416": {
       "workers": {
         "app/(panel)/testimonials/[id]/page": {
-          "moduleId": 13369,
+          "moduleId": 28401,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/testimonials/new/page": {
-          "moduleId": 46620,
+          "moduleId": 60968,
           "async": false,
           "codeHash": null
         }
@@ -233,12 +289,12 @@
     "604ee7543258a504ca080c69899bc327582833e433": {
       "workers": {
         "app/(panel)/testimonials/[id]/page": {
-          "moduleId": 13369,
+          "moduleId": 28401,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/testimonials/new/page": {
-          "moduleId": 46620,
+          "moduleId": 60968,
           "async": false,
           "codeHash": null
         }
@@ -249,12 +305,12 @@
     "7079c5bd9e04ff3b08eaf7c0c36f759fc2d6bcc55d": {
       "workers": {
         "app/(panel)/testimonials/[id]/page": {
-          "moduleId": 13369,
+          "moduleId": 28401,
           "async": false,
           "codeHash": null
         },
         "app/(panel)/testimonials/new/page": {
-          "moduleId": 46620,
+          "moduleId": 60968,
           "async": false,
           "codeHash": null
         }

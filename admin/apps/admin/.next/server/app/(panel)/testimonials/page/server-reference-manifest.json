@@ -3,7 +3,7 @@
     "00f37b995232815116cf0eac3d703d572a1c453717": {
       "workers": {
         "app/(panel)/testimonials/page": {
-          "moduleId": 20338,
+          "moduleId": 52557,
           "async": false,
           "codeHash": null
         }
@@ -14,13 +14,24 @@
     "60e12739b89978e7b546357db9fb3c21b37f10c702": {
       "workers": {
         "app/(panel)/testimonials/page": {
-          "moduleId": 20338,
+          "moduleId": 52557,
           "async": false,
           "codeHash": null
         }
       },
       "exportedName": "login",
       "filename": "apps/admin/src/app/login/actions.ts"
+    },
+    "40c23ea383862286db726ff99ba90b066efdeba630": {
+      "workers": {
+        "app/(panel)/testimonials/page": {
+          "moduleId": 52557,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "setLocale",
+      "filename": "apps/admin/src/i18n/actions.ts"
     }
   },
   "edge": {}

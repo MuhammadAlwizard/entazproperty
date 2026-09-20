@@ -1,9 +1,20 @@
 {
   "node": {
+    "40c23ea383862286db726ff99ba90b066efdeba630": {
+      "workers": {
+        "app/login/page": {
+          "moduleId": 94411,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "setLocale",
+      "filename": "apps/admin/src/i18n/actions.ts"
+    },
     "60e12739b89978e7b546357db9fb3c21b37f10c702": {
       "workers": {
         "app/login/page": {
-          "moduleId": 61592,
+          "moduleId": 94411,
           "async": false,
           "codeHash": null
         }

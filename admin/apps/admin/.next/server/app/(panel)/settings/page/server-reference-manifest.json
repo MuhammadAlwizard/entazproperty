@@ -3,7 +3,7 @@
     "00f37b995232815116cf0eac3d703d572a1c453717": {
       "workers": {
         "app/(panel)/settings/page": {
-          "moduleId": 59015,
+          "moduleId": 28424,
           "async": false,
           "codeHash": null
         }
@@ -14,7 +14,7 @@
     "60e12739b89978e7b546357db9fb3c21b37f10c702": {
       "workers": {
         "app/(panel)/settings/page": {
-          "moduleId": 59015,
+          "moduleId": 28424,
           "async": false,
           "codeHash": null
         }
@@ -22,10 +22,21 @@
       "exportedName": "login",
       "filename": "apps/admin/src/app/login/actions.ts"
     },
+    "40c23ea383862286db726ff99ba90b066efdeba630": {
+      "workers": {
+        "app/(panel)/settings/page": {
+          "moduleId": 28424,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "setLocale",
+      "filename": "apps/admin/src/i18n/actions.ts"
+    },
     "002999d4ddece74848dfcefa261324d035a55baf9f": {
       "workers": {
         "app/(panel)/settings/page": {
-          "moduleId": 59015,
+          "moduleId": 28424,
           "async": false,
           "codeHash": null
         }
@@ -36,7 +47,7 @@
     "60930c9a25ad81152d8ff49d177c04a8793b76c483": {
       "workers": {
         "app/(panel)/settings/page": {
-          "moduleId": 59015,
+          "moduleId": 28424,
           "async": false,
           "codeHash": null
         }
@@ -47,7 +58,7 @@
     "60b8f352591aaa6d08514440dc4f76426294f29b69": {
       "workers": {
         "app/(panel)/settings/page": {
-          "moduleId": 59015,
+          "moduleId": 28424,
           "async": false,
           "codeHash": null
         }
@@ -58,7 +69,7 @@
     "60efecf8f9139ec81c1b1982ba1e524590998afd34": {
       "workers": {
         "app/(panel)/settings/page": {
-          "moduleId": 59015,
+          "moduleId": 28424,
           "async": false,
           "codeHash": null
         }
