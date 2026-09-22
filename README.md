@@ -65,15 +65,14 @@ Useful commands: `npm run typecheck`, `npm run migrate`, `npm run backup`, `npm 
 
 ## Deployment
 
-The apps run as two Node.js applications on shared hosting that has no SSH. The `deploy` branch is generated: it holds the prebuilt standalone output of each app, one folder per app, and the host only runs `npm install`. The `main` branch is the source. The procedure is written down, in Indonesian, in [`CLAUDE.md`](CLAUDE.md).
+The apps run as two Node.js applications on shared hosting that has no SSH. The `deploy` branch is generated: it holds the prebuilt standalone output of each app, one folder per app, and the host only runs `npm install`. The `main` branch is the source. The procedure is written down, in Indonesian,
 
 ## Status
 
 Working and deployed on a temporary domain. Not done yet: two-factor authentication, automatic cleanup of unused photos, online booking and payment (orders go through WhatsApp), and a native speaker's review of the Arabic text, which was written with AI assistance.
 
 ## Documentation and rules
-
-`CLAUDE.md` (Indonesian) is the project's working notes: business rules, security design and deployment.
+(Indonesian) is the project's working notes: business rules, security design and deployment.
 
 ## License
 
