@@ -23,8 +23,10 @@ function IntentButton({ intent, primary, children }: { intent: string; primary?:
 }
 
 /** Invoice editor with a live total. While the booking is new, the main button saves AND confirms. */
-export function InvoiceForm({ action, unitPrice, units, extras, unit, canConfirm }: {
+export function InvoiceForm({ action, unitPrice, units, extras, unit, canConfirm, clash = false }: {
   action: Action; unitPrice: number; units: number; extras: ExtraItem[]; unit: string; canConfirm: boolean;
+  /** The dates clash with a confirmed booking: confirming needs a deliberate tick */
+  clash?: boolean;
 }) {
   const [state, formAction] = useActionState<FormState, FormData>(action, {});
   const { locale, d } = useI18n();
@@ -100,6 +102,12 @@ export function InvoiceForm({ action, unitPrice, units, extras, unit, canConfirm
         </dl>
       </fieldset>
 
+      {canConfirm && clash && (
+        <label className="check force-check">
+          <input type="checkbox" name="force" value="1" />
+          <span>{t.forceConfirm}</span>
+        </label>
+      )}
       <div className="form-actions">
         {canConfirm && <IntentButton intent="confirm" primary>{t.confirm}</IntentButton>}
         <IntentButton intent="save" primary={!canConfirm}>{t.saveInvoice}</IntentButton>

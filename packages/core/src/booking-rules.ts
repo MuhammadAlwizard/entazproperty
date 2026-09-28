@@ -92,3 +92,23 @@ export const MANUAL_SOURCES = BOOKING_SOURCES.filter((s) => s !== 'web');
 /** A booking an admin enters has already been agreed, so it starts confirmed, or already paid (paid on the spot). */
 export const MANUAL_START = ['awaiting_payment', 'paid'] as const;
 export type ManualStart = (typeof MANUAL_START)[number];
+
+/**
+ * Bookings that hold their dates: the admin has confirmed them. A new, unconfirmed request never blocks anyone,
+ * otherwise a stranger could block every date just by filling in the form. (payment_review is derived from
+ * awaiting_payment, so the stored statuses are enough.)
+ */
+export const HOLDING_STATUSES = ['awaiting_payment', 'paid', 'done'] as const;
+
+/**
+ * Do two bookings of the same listing clash? One unit per listing.
+ * villa: nights, so check-out day can be the next guest's check-in day (end is exclusive).
+ * mobil, motor: the return day is still in use (end is inclusive; same-day return counts as that day).
+ * tour: a date takes many participants, never a clash.
+ */
+export function datesOverlap(category: Category, aStart: string, aEnd: string | null, bStart: string, bEnd: string | null): boolean {
+  if (category === 'tour') return false;
+  const ae = aEnd ?? aStart;
+  const be = bEnd ?? bStart;
+  return category === 'villa' ? aStart < be && bStart < ae : aStart <= be && bStart <= ae;
+}

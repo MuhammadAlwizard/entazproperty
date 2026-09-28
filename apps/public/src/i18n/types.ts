@@ -37,6 +37,7 @@ export type Dict = {
     startVilla: string; endVilla: string; startVehicle: string; endVehicle: string; startTour: string;
     guestsVilla: string; guestsTour: string; minGuests: string;
     name: string; phone: string; phoneHint: string; email: string; optional: string; note: string; notePlaceholder: string;
+    taken: string; takenHint: string;
     estimate: string; estimateEmpty: string; estimateNote: string; submit: string; sending: string; privacy: string; formError: string;
     errors: BookingMessages;
     doneTitle: string; doneText: string; number: string; status: string; statuses: Record<BookingStatus, string>;

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Ticket, WhatsappLogo } from '@phosphor-icons/react/dist/ssr';
-import { BOOKING_ACTIONS, INVOICE_EDITABLE, bookingAmount, getBookingById, listProofs, whatsappLink, type Booking } from '@enjaz/core';
+import { BOOKING_ACTIONS, INVOICE_EDITABLE, bookingAmount, findClashes, getBookingById, listProofs, whatsappLink, type Booking } from '@enjaz/core';
 import { requireAdmin } from '@/lib/auth';
 import { PUBLIC_URL } from '@/lib/public-url';
 import { getI18n } from '@/i18n/server';
@@ -48,6 +48,10 @@ export default async function BookingDetail({ params, searchParams }: Props) {
   if (!b) notFound();
   const { done } = await searchParams;
   const proofs = b.status === 'pending' ? [] : await listProofs(b.id);
+  // Clashes matter while the booking is still live; a finished or cancelled one no longer holds dates.
+  const clashes = b.status === 'done' || b.status === 'cancelled' ? [] : await findClashes({ ...b, excludeId: b.id });
+  const holding = clashes.filter((c) => c.status !== 'pending');
+  const pendingClashes = clashes.filter((c) => c.status === 'pending');
   const fmt = dateTimeFormat(locale, 'short');
 
   const ct = catText(d, b.category);
@@ -74,6 +78,26 @@ export default async function BookingDetail({ params, searchParams }: Props) {
       </header>
 
       {doneText && <p className="notice notice-ok" role="status">{doneText}</p>}
+
+      {clashes.length > 0 && (
+        <section className={`clash ${holding.length ? 'clash-hard' : ''}`} role="alert" aria-labelledby="clash-title">
+          <h2 id="clash-title">{t.clashTitle}</h2>
+          {[{ label: t.clashHolding, list: holding }, { label: t.clashPending, list: pendingClashes }].filter((g) => g.list.length).map((g) => (
+            <div key={g.label}>
+              <p>{g.label}</p>
+              <ul>
+                {g.list.map((c) => (
+                  <li key={c.id}>
+                    <Link href={`/bookings/${c.id}`} className="text-link" dir="ltr">{c.code}</Link>
+                    {' '}{c.name}, {formatDayRange(locale, c.startDate, c.endDate)}{' '}
+                    <span className={`pill status-${c.status}`}>{d.bookings.statuses[c.status]}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+      )}
 
       <div className="booking-layout">
         <div className="booking-main">
@@ -138,6 +162,7 @@ export default async function BookingDetail({ params, searchParams }: Props) {
               extras={b.extras}
               unit={ct.priceUnit}
               canConfirm={b.status === 'pending'}
+              clash={holding.length > 0}
             />
           ) : (
             <section className="group" aria-labelledby="inv-title">

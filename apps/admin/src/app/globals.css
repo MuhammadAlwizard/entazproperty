@@ -215,6 +215,11 @@ img { display: block; max-width: 100%; }
 .radio-row legend { font-weight: 600; font-size: 0.95rem; padding: 0; margin-bottom: 6px; }
 .radio-row .check { font-weight: 500; align-items: center; }
 .field select { padding: 12px 14px; }
+.clash { margin-bottom: 20px; padding: 16px 18px; border: 1px solid #f0d49c; border-inline-start: 4px solid var(--warn); background: #fff8ec; border-radius: var(--radius); display: flex; flex-direction: column; gap: 8px; }
+.clash-hard { border-color: #f5c6c2; border-inline-start-color: var(--danger); background: #fdecea; }
+.clash h2 { font-size: 1.05rem; }
+.clash ul { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.force-check { font-weight: 500; }
 .cancel-form { display: flex; flex-direction: column; gap: 12px; max-width: 480px; }
 .link-box { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); font: 0.85rem/1.3 ui-monospace, Consolas, monospace; color: var(--ink); }
 @media (max-width: 1000px) {

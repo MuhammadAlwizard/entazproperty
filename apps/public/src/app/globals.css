@@ -307,6 +307,9 @@ figcaption strong { color: var(--ink); font-size: 0.98rem; }
 .notice-error { padding: 12px 14px; border: 1px solid #efc2bd; background: #fdf1f0; color: #8a1c14; border-radius: var(--radius); }
 /* Honeypot: off screen, not display:none (some bots skip hidden fields) */
 .hp { position: absolute; inset-inline-start: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.taken { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border: 1px solid var(--line); border-inline-start: 3px solid var(--error); border-radius: var(--radius); background: var(--bg); }
+.taken-title { font-weight: 600; font-size: 0.92rem; }
+.taken ul { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.92rem; }
 .book-estimate { display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; background: var(--bg); border-radius: var(--radius); }
 .book-estimate-label { font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); }
 .book-estimate strong { font: 700 1.9rem/1.1 var(--font-display), sans-serif; color: var(--navy); }

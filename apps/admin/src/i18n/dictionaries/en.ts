@@ -365,6 +365,7 @@ export const en: Dict = {
       save: 'Save booking',
       listingMissing: 'Choose a listing.',
       priceBad: 'Enter the price as a number.',
+      clash: 'Clashes with confirmed booking {codes}. Change the dates or cancel that booking first.',
     },
     statuses: {
       pending: 'New', awaiting_payment: 'Awaiting payment', payment_review: 'Proof received',
@@ -420,6 +421,11 @@ export const en: Dict = {
       voucher: 'Print voucher',
       customerLinkHint: 'A private link with the status and invoice. Send it to this customer only.',
       stale: 'This booking has changed in the meantime. Reload the page.',
+      clashTitle: 'Date clash',
+      clashHolding: 'The dates clash with a confirmed booking:',
+      clashPending: 'Other unconfirmed requests for the same dates:',
+      clashBlocked: 'Not confirmed: it clashes with {codes}. Cancel one of them, or tick "Confirm despite the clash".',
+      forceConfirm: 'Confirm despite the clash',
       proofs: 'Transfer proof',
       proofNone: 'No proof from the customer yet. If they sent it on WhatsApp, check the bank statement first, then click Mark as paid.',
       proofUploaded: 'Uploaded {date}',
@@ -466,6 +472,7 @@ export const en: Dict = {
     guestsInvalid: 'Enter a number of people from 1 to 99.', guestsMin: 'This package needs at least {min} people.',
     noteMax: 'Notes can be at most 500 characters.',
     tooMany: 'Too many bookings. Try again later.',
+    taken: 'These dates are already booked.',
   },
 
   reports: {

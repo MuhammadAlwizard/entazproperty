@@ -1,11 +1,11 @@
 'use client';
 
 import { useActionState, useState, type ReactNode } from 'react';
-import { addDays, bookingShape, bookingUnits, BOOKING_MAX_GUESTS } from '@enjaz/core/booking-rules';
+import { addDays, bookingShape, bookingUnits, BOOKING_MAX_GUESTS, datesOverlap } from '@enjaz/core/booking-rules';
 import type { Category } from '@enjaz/core/categories';
 import type { BookingFormState } from '@/app/[lang]/[category]/[slug]/pesan/actions';
 import type { Locale } from '@/i18n/config';
-import { formatPrice, pluralize } from '@/i18n/plural';
+import { formatDay, formatPrice, pluralize } from '@/i18n/plural';
 import type { Dict, Forms } from '@/i18n/types';
 
 type Props = {
@@ -20,14 +20,16 @@ type Props = {
   today: string;
   maxDate: string;
   minGuests: number;
+  /** Date ranges already held by confirmed bookings (one unit per listing) */
+  taken: { start: string; end: string | null }[];
   t: Omit<Dict['booking'], 'minGuests'> & { minGuests: string };
   summary: ReactNode;
 };
 
-export function BookingForm({ action, locale, category, price, unit, unitForms, today, maxDate, minGuests, t, summary }: Props) {
+export function BookingForm({ action, locale, category, price, unit, unitForms, today, maxDate, minGuests, taken, t, summary }: Props) {
   const [state, formAction, pending] = useActionState<BookingFormState, FormData>(action, {});
   const v = (k: string, fallback = '') => state.values?.[k] ?? fallback;
-  const err = state.errors ?? {};
+  const err: Record<string, string> = { ...state.errors };
   const shape = bookingShape(category);
 
   // Dates and head count are controlled so the estimate follows every change.
@@ -40,6 +42,17 @@ export function BookingForm({ action, locale, category, price, unit, unitForms, 
 
   const startLabel = category === 'villa' ? t.startVilla : category === 'tour' ? t.startTour : t.startVehicle;
   const endLabel = category === 'villa' ? t.endVilla : t.endVehicle;
+
+  // A date error from the last submit no longer applies once the visitor picks other dates.
+  if (start !== (state.values?.startDate ?? '') || end !== (state.values?.endDate ?? '')) {
+    delete err.startDate;
+    delete err.endDate;
+  }
+  // Same rule the server applies; shown as soon as the chosen dates clash, before sending.
+  const clash = Boolean(start) && (!shape.end || Boolean(end)) && taken.some((r) => datesOverlap(category, start, shape.end ? end : null, r.start, r.end));
+  if (clash && !err.startDate) err.startDate = t.errors.taken;
+  const rangeText = (r: { start: string; end: string | null }) =>
+    r.end && r.end !== r.start ? `${formatDay(locale, r.start)} - ${formatDay(locale, r.end)}` : formatDay(locale, r.start);
 
   const fieldError = (name: string) => err[name] && <em className="field-error" id={`${name}-error`}>{err[name]}</em>;
   const describedBy = (name: string, hint?: string) => [hint, err[name] && `${name}-error`].filter(Boolean).join(' ') || undefined;
@@ -88,6 +101,14 @@ export function BookingForm({ action, locale, category, price, unit, unitForms, 
             </label>
           )}
         </div>
+
+        {taken.length > 0 && (
+          <div className="taken">
+            <span className="taken-title">{t.taken}</span>
+            <ul>{taken.map((r) => <li key={`${r.start}-${r.end}`}><bdi className="num">{rangeText(r)}</bdi></li>)}</ul>
+            <small className="hint">{t.takenHint}</small>
+          </div>
+        )}
 
         <label className="field">
           <span>{t.name}</span>

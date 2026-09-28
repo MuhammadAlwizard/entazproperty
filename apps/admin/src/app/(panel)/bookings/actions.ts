@@ -3,12 +3,13 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
-  MANUAL_SOURCES, MANUAL_START, createBooking, getListingById, parsePrice, todayWib, validateBooking,
+  MANUAL_SOURCES, MANUAL_START, createBooking, findClashes, getListingById, parsePrice, todayWib, validateBooking,
   getBookingById, logAudit, reviewNewProofs, saveBookingAdminNote, saveBookingInvoice, setBookingStatus, validateInvoice, type BookingAction,
 } from '@enjaz/core';
 import { getClientIp, requireAdmin } from '@/lib/auth';
 import { formToObject, type FormState } from '@/lib/form';
 import { getDict } from '@/i18n/server';
+import { fill } from '@/i18n/format';
 import { isLocale } from '@/i18n/config';
 
 /**
@@ -30,6 +31,12 @@ export async function invoiceAction(id: number, _prev: FormState, fd: FormData):
   await logAudit({ email: session.email, action: 'booking.invoice', target: booking.code, detail: { id, total: result.data.total }, ip });
 
   if (raw.intent === 'confirm') {
+    // One unit per listing: refuse to confirm over a confirmed booking unless the admin ticked the override.
+    const clashes = await findClashes({ ...booking, excludeId: booking.id }, { holdingOnly: true });
+    if (clashes.length && raw.force !== '1') {
+      revalidatePath(`/bookings/${id}`);
+      return { values: raw, formError: fill(t.clashBlocked, { codes: clashes.map((c) => c.code).join(', ') }) };
+    }
     if (!(await setBookingStatus(id, 'confirm'))) return { values: raw, formError: t.stale };
     await logAudit({ email: session.email, action: 'booking.confirm', target: booking.code, detail: { id }, ip });
     revalidatePath('/', 'layout'); // the sidebar count changes
@@ -99,6 +106,11 @@ export async function createManualBookingAction(_prev: FormState, fd: FormData):
   const start = (MANUAL_START as readonly string[]).includes(String(raw.start)) ? (raw.start as (typeof MANUAL_START)[number]) : 'awaiting_payment';
   const locale = isLocale(raw.locale) ? raw.locale : 'id';
   if (!result.ok || Object.keys(errors).length) return { errors, values: raw, formError: d.common.formError };
+
+  const clashes = await findClashes({ listingId: listing.id, category: listing.category, startDate: result.data.startDate, endDate: result.data.endDate }, { holdingOnly: true });
+  if (clashes.length) {
+    return { values: raw, formError: fill(f.clash, { codes: clashes.map((c) => c.code).join(', ') }) };
+  }
 
   const booking = await createBooking(
     result.data, listing, { locale, ip: 'admin', today: todayWib() },

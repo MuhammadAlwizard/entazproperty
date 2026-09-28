@@ -1,7 +1,7 @@
 import { randomBytes, randomInt } from 'node:crypto';
 import { exec, isDuplicateError, parseJson, q, q1 } from './db';
 import {
-  BOOKING_ACTIONS, NEEDS_ACTION, INVOICE_EDITABLE, type BookingAction, type BookingSource, type BookingStatus, type ExtraItem, type ManualStart,
+  BOOKING_ACTIONS, HOLDING_STATUSES, NEEDS_ACTION, INVOICE_EDITABLE, type BookingAction, type BookingSource, type BookingStatus, type ExtraItem, type ManualStart,
 } from './booking-rules';
 import type { Category } from './categories';
 import type { Listing } from './types';
@@ -257,4 +257,39 @@ export async function dailyReport(day: string): Promise<{ starts: Booking[]; end
 export async function bookingsForExport(from: Date, to: Date, basis: 'created' | 'paid'): Promise<Booking[]> {
   if (basis === 'paid') return paidBookingsBetween(from, to);
   return (await q<BookingRow>(`${SELECT_BOOKING} WHERE b.created_at >= ? AND b.created_at < ? ORDER BY b.created_at ASC`, [from, to])).map(toBooking);
+}
+
+/* ------------------------------ Date clashes ------------------------------ */
+
+/**
+ * Other bookings of the same listing whose dates clash with [start, end] (rules in datesOverlap).
+ * `holdingOnly`: only confirmed bookings (they block the dates); otherwise unconfirmed requests are included too,
+ * which the admin sees as a softer warning.
+ */
+export async function findClashes(
+  b: { listingId: number | null; category: Category; startDate: string; endDate: string | null; excludeId?: number },
+  opts: { holdingOnly?: boolean } = {},
+): Promise<Booking[]> {
+  if (!b.listingId || b.category === 'tour') return [];
+  const end = b.endDate ?? b.startDate;
+  // The same rule as datesOverlap, written in SQL. end_date is NULL only for tours, which never get here.
+  const overlap = b.category === 'villa' ? 'b.start_date < ? AND b.end_date > ?' : 'b.start_date <= ? AND b.end_date >= ?';
+  const statuses = opts.holdingOnly ? [...HOLDING_STATUSES] : ['pending', ...HOLDING_STATUSES];
+  const rows = await q<BookingRow>(
+    `${SELECT_BOOKING} WHERE b.listing_id = ? AND b.id <> ? AND b.status IN (${statuses.map(() => '?').join(',')}) AND ${overlap}
+      ORDER BY b.start_date`,
+    [b.listingId, b.excludeId ?? 0, ...statuses, end, b.startDate],
+  );
+  return rows.map(toBooking);
+}
+
+/** Dates already held by confirmed bookings, from today on, for the public form. No names, only date ranges. */
+export async function takenRanges(listingId: number, today: string): Promise<{ start: string; end: string | null }[]> {
+  const rows = await q<{ start_date: Date | string; end_date: Date | string | null }>(
+    `SELECT start_date, end_date FROM bookings
+      WHERE listing_id = ? AND status IN (${HOLDING_STATUSES.map(() => '?').join(',')}) AND COALESCE(end_date, start_date) >= ?
+      ORDER BY start_date LIMIT 30`,
+    [listingId, ...HOLDING_STATUSES, today],
+  );
+  return rows.map((r) => ({ start: isoDay(r.start_date), end: r.end_date ? isoDay(r.end_date) : null }));
 }

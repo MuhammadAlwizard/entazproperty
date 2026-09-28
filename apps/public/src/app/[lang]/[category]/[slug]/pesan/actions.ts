@@ -2,7 +2,7 @@
 
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { countRecentBookings, createBooking, getListingBySlug, isCategory, todayWib, validateBooking } from '@enjaz/core';
+import { countRecentBookings, createBooking, findClashes, getListingBySlug, isCategory, todayWib, validateBooking } from '@enjaz/core';
 import { getDict, isLocale, localePath } from '@/i18n';
 
 export type BookingFormState = { errors?: Record<string, string>; values?: Record<string, string>; formError?: string };
@@ -42,6 +42,10 @@ export async function createBookingAction(lang: string, category: string, slug: 
     countRecentBookings({ phone: result.data.phone }, new Date(now - 86_400_000)),
   ]);
   if (byIp >= PER_IP_PER_HOUR || byPhone >= PER_PHONE_PER_DAY) return { values: raw, formError: d.booking.errors.tooMany };
+
+  // One unit per listing: dates held by a confirmed booking cannot be requested again.
+  const clashes = await findClashes({ listingId: listing.id, category, startDate: result.data.startDate, endDate: result.data.endDate }, { holdingOnly: true });
+  if (clashes.length) return { values: raw, errors: { startDate: d.booking.errors.taken }, formError: d.booking.formError };
 
   const booking = await createBooking(result.data, listing, { locale: lang, ip, today: todayWib(now) });
   redirect(localePath(lang, `/pesanan/${booking.accessToken}`));

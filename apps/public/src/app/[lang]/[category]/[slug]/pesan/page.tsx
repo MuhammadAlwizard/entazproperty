@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { addDays, BOOKING_MAX_DAYS_AHEAD, getListingBySlug, isCategory, localizeListing, todayWib } from '@enjaz/core';
+import { addDays, BOOKING_MAX_DAYS_AHEAD, getListingBySlug, isCategory, localizeListing, takenRanges, todayWib } from '@enjaz/core';
 import { BookingForm } from '@/components/BookingForm';
 import { Photo, Where } from '@/components/cards';
 import { fill, getDict, isLocale, localePath, unitLabel, type Locale } from '@/i18n';
@@ -36,6 +36,7 @@ export default async function BookingPage({ params }: Props) {
   const today = todayWib();
   const minGuests = Number(l.meta.minPeserta) || 0;
   const pluralKey = l.category === 'villa' ? 'malam' : l.category === 'tour' ? 'orang' : 'hari';
+  const taken = l.category === 'tour' ? [] : await takenRanges(l.id, today);
 
   return (
     <div className="detail book-page">
@@ -58,6 +59,7 @@ export default async function BookingPage({ params }: Props) {
         today={today}
         maxDate={addDays(today, BOOKING_MAX_DAYS_AHEAD)}
         minGuests={minGuests}
+        taken={taken}
         t={{ ...b, minGuests: minGuests ? fill(b.minGuests, { min: minGuests }) : '' }}
         summary={
           <>

@@ -65,6 +65,8 @@ export type BookingMessages = {
   guestsMin: string;
   noteMax: string;
   tooMany: string;
+  /** The dates clash with a confirmed booking of the same listing */
+  taken: string;
 };
 
 export type InvoiceMessages = {
@@ -100,6 +102,7 @@ export const BOOKING_ID: BookingMessages = {
   guestsMin: 'Paket ini minimal {min} orang.',
   noteMax: 'Catatan maksimal 500 karakter.',
   tooMany: 'Terlalu banyak pemesanan dari perangkat atau nomor ini. Coba lagi nanti atau hubungi kami lewat WhatsApp.',
+  taken: 'Tanggal ini sudah terisi. Pilih tanggal lain atau hubungi kami lewat WhatsApp.',
 };
 
 export const VALIDATION_ID: ValidationMessages = {
