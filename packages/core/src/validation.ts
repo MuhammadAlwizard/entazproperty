@@ -7,7 +7,7 @@ import {
 import type { ListingInput, ListingTranslations, TestimonialInput, TestimonialTranslations } from './types';
 
 // Business rules for content live here so the admin form and any future
-// import/API path enforce exactly the same thing. See CLAUDE.md.
+// import/API path enforce exactly the same thing.
 // The wording of the errors comes from the caller (see messages.ts); Indonesian is the default.
 
 export type Errors = Record<string, string>;

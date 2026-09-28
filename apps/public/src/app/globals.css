@@ -1,6 +1,6 @@
 /* PT Enjaz Instan Properti, public site.
    Palette is taken from the logo: navy + gold. Gold is the single accent.
-   One radius, one (light) theme. See CLAUDE.md for the design rules. */
+   One radius, one (light) theme. */
 
 :root {
   --bg: #f4f6f9;

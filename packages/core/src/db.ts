@@ -15,7 +15,7 @@ const g = globalThis as unknown as { __enjazPool?: Pool };
 export function databaseUrl(): string {
   const url = process.env.DATABASE_URL;
   if (!url) {
-    throw new Error('DATABASE_URL belum diisi. Format: mysql://USER:PASSWORD@HOST:3306/NAMA_DATABASE (lihat CLAUDE.md, bagian Database).');
+    throw new Error('DATABASE_URL belum diisi. Format: mysql://USER:PASSWORD@HOST:3306/NAMA_DATABASE (lihat .env.example).');
   }
   return url;
 }

@@ -74,7 +74,7 @@ Runs on a Linux VPS: both apps as systemd services behind Caddy (automatic HTTPS
 
 ## Status
 
-Working and deployed on a temporary hostname. Not done yet: the client's own domain and real content, two-factor authentication, a CAPTCHA on the booking form, date availability checks (staff confirm dates by hand), automatic cleanup of unused photos, and a native speaker's review of the Arabic text, which was written with AI assistance.
+Working and deployed on a temporary hostname. Not done yet: the client's own domain and real content, two-factor authentication, a CAPTCHA on the booking form, date availability checks (staff confirm dates by hand), automatic cleanup of unused photos, and a native speaker's review of the Arabic text.
 
 ## License
 

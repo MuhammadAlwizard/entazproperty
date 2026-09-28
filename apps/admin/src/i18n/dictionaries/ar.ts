@@ -1,7 +1,7 @@
 import type { Dict } from './id';
 
 // Arabic (Modern Standard). Same keys as id.ts (the build fails otherwise).
-// Written with AI assistance: a native speaker should read it before it is relied on.
+// Not yet reviewed by a native speaker: have it read before it is relied on.
 export const ar: Dict = {
   brand: { name: 'إنجاز', subtitle: 'لوحة الإدارة' },
   meta: { title: 'الإدارة | PT Enjaz Instan Properti', template: '%s | إدارة إنجاز' },

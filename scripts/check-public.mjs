@@ -1,5 +1,5 @@
 // Guard for the PUBLIC repository. Run it before every push (`npm run check:public`; a local pre-push hook does it too).
-// It fails when a file that is (or is about to be) tracked breaks the rules in CLAUDE.md, section "Aturan repo publik".
+// It fails when a file that is (or is about to be) tracked holds a secret, personal data or a local-only file.
 // It only reads files. It never prints the matched secret, only where it is and which rule it broke.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -19,7 +19,7 @@ const FORBIDDEN_PATH = [
 // 2. Things that must not appear inside a file.
 // Documented examples: the run of digits 3456 7890 (and 1234567890) never belongs to a real number here.
 const FAKE_PHONES = ['6281234567890', '081234567890', '34567890'];
-const OK_EMAIL_DOMAIN = /@(example\.(com|org|net)|localhost|users\.noreply\.github\.com|noreply\.github\.com|noreply\.anthropic\.com)$/i;
+const OK_EMAIL_DOMAIN = /@(example\.(com|org|net)|localhost|users\.noreply\.github\.com|noreply\.github\.com)$/i;
 const PLACEHOLDER_PASSWORD = /^(PASSWORD|DB_PASSWORD|PASS|password|pass|\*+|\.{3}|change-?me.*|<.*>|%.*|YOUR.*|xxx+)$/i;
 
 const CONTENT = [
