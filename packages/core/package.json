@@ -18,7 +18,9 @@
     "seed": "tsx --env-file=../../.env src/cli/seed.ts",
     "backup": "tsx --env-file=../../.env src/cli/backup.ts",
     "typecheck": "tsc --noEmit",
-    "import-json": "tsx --env-file=../../.env src/cli/import-json.ts"
+    "import-json": "tsx --env-file=../../.env src/cli/import-json.ts",
+    "import-content": "tsx --env-file=../../.env src/cli/import-content.ts",
+    "fetch-photos": "tsx src/cli/fetch-photos.ts"
   },
   "dependencies": {
     "mysql2": "^3.24.4"

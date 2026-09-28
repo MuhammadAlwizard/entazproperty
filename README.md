@@ -4,8 +4,8 @@ A production website for an Indonesian company that rents villas, cars and motor
 
 Built and deployed for a real client. All data in this repository is sample data (invented names, random stock photos).
 
-<!-- Live demo runs on a temporary hosting domain and will move to the client's own domain. -->
-**Live demo:** https://seagreen-gazelle-923030.hostingersite.com
+<!-- Live demo runs on a temporary hostname and will move to the client's own domain. -->
+**Live demo:** https://srv1995798.hstgr.cloud
 
 | | |
 |---|---|
@@ -17,7 +17,8 @@ Built and deployed for a real client. All data in this repository is sample data
 **Public site** (`apps/public`)
 - Full-screen hero slideshow (crossfade, pauses on hover, honours `prefers-reduced-motion`) with a separate portrait photo set for phones.
 - Four service cards (villa, car, motorbike, tour), a category page and a detail page for each listing, an embedded map per villa, an endless testimonials marquee, and the office location in the footer.
-- Ordering through WhatsApp with a prefilled message. Several numbers, the first one is the primary contact.
+- Booking requests: a form per listing (dates, people, contact) with a live price estimate, and a private page per booking that shows its status, the invoice and bank account once the company confirms, a transfer-proof upload, and a printable voucher once paid. No online payment gateway on purpose: customers pay by bank transfer.
+- Questions through WhatsApp with a prefilled message. Several numbers, the first one is the primary contact.
 - A category with no listings shows "Coming soon" instead of an empty page, and is kept out of search results until it has content.
 - SEO: unique title and description per page, Open Graph and Twitter cards, JSON-LD (`Organization`, `Product`, `TouristTrip`, `BreadcrumbList`), `hreflang`, a per-language sitemap, `robots.txt`.
 - Three languages with clean URLs (`/`, `/en`, `/ar`), a full RTL layout for Arabic, and an Arabic web font that is only downloaded on Arabic pages.
@@ -27,13 +28,17 @@ Built and deployed for a real client. All data in this repository is sample data
 - Create, edit and delete listings, up to 30 photos each, with a required location for villas.
 - Photos are resized and re-encoded in the browser before upload, which also strips EXIF and GPS data. The server checks the real file type and strips metadata again.
 - Testimonials with optional round photos, company contact details, hero photos, office address and map link, and English and Arabic translations for the listing and testimonial texts.
+- Bookings: a list with a count of what needs attention, invoice editing (extra charges, discounts), confirm, check the transfer screenshot then mark paid or reject it with a reason, cancel, manual bookings for WhatsApp, phone and walk-in customers, and a prefilled WhatsApp message to the customer in the customer's language.
+- Dashboard with a daily report (arrivals, departures, new bookings, payments) and monthly revenue per day, category and source, plus an Excel (.xlsx) export written without a library.
 - Activity log, downloadable content backup, signed-in devices with "sign out the others", change password and change login email.
 
 ## Security
 
 Server-side sessions (only a SHA-256 of the token is stored, the cookie is `__Host-`, `HttpOnly`, `SameSite=Strict`), scrypt password hashing with a password policy, forced password change on first login, login rate limiting stored in the database, an audit log, prepared statements everywhere, magic-byte upload validation, and a nonce-based Content Security Policy (also written as a `<meta>` tag because some hosts replace the header). Every page, server action and route handler checks the session itself, and the proxy is only a first gate.
 
-Honest limits: there is no two-factor authentication yet, and both apps use one database user.
+The public app has its own database user that can only read content and add bookings and transfer proofs: it cannot change a booking, so a compromised public site cannot mark anything as paid. "Proof received" is derived from unreviewed proofs rather than stored. Transfer proofs are kept apart from the public photos and are only served to signed-in admins.
+
+Honest limits: there is no two-factor authentication yet, and no CAPTCHA on the booking form (a honeypot and per-IP and per-phone limits only).
 
 ## Tech stack
 
@@ -61,18 +66,15 @@ npm run dev
 
 On Windows, `npm run dev` also starts a portable MariaDB (downloaded once, checksum verified) and both apps. On other systems run your own MySQL or MariaDB and put its address in `DATABASE_URL`. `npm run seed` adds the admin and fake sample content.
 
-Useful commands: `npm run typecheck`, `npm run migrate`, `npm run backup`, `npm run check:public`.
+Useful commands: `npm run typecheck`, `npm run migrate`, `npm run backup`, `npm run check:public`. Moving a site's content between databases, photos included, with ids kept so no address changes: `npm run fetch-photos -w @enjaz/core` then `npm run import-content -w @enjaz/core`.
 
 ## Deployment
 
-The apps run as two Node.js applications on shared hosting that has no SSH. The `deploy` branch is generated: it holds the prebuilt standalone output of each app, one folder per app, and the host only runs `npm install`. The `main` branch is the source. The procedure is written down, in Indonesian,
+Runs on a Linux VPS: both apps as systemd services behind Caddy (automatic HTTPS), MariaDB listening on localhost only, one database user per app, a daily database backup, and a firewall that only opens SSH, HTTP and HTTPS. Updates are pulled from `main` and built on the server; migrations run from the admin app only.
 
 ## Status
 
-Working and deployed on a temporary domain. Not done yet: two-factor authentication, automatic cleanup of unused photos, online booking and payment (orders go through WhatsApp), and a native speaker's review of the Arabic text, which was written with AI assistance.
-
-## Documentation and rules
-(Indonesian) is the project's working notes: business rules, security design and deployment.
+Working and deployed on a temporary hostname. Not done yet: the client's own domain and real content, two-factor authentication, a CAPTCHA on the booking form, date availability checks (staff confirm dates by hand), automatic cleanup of unused photos, and a native speaker's review of the Arabic text, which was written with AI assistance.
 
 ## License
 
