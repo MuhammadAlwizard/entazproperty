@@ -146,12 +146,13 @@ export default async function ListingPage({ params }: Props) {
             <strong><bdi className="num">{price}</bdi></strong>
             <span> / {unit}</span>
           </p>
-          {wa ? (
-            <a className="btn btn-gold btn-block" href={wa} target="_blank" rel="noopener noreferrer">
-              <WhatsappLogo size={20} weight="bold" aria-hidden /> {d.detail.book}<span className="wa-more">{d.detail.bookRest}</span>
+          <Link className="btn btn-gold btn-block" href={localePath(lang, `/${l.category}/${l.slug}/pesan`)}>
+            {d.detail.bookNow}
+          </Link>
+          {wa && (
+            <a className="text-link booking-ask" href={wa} target="_blank" rel="noopener noreferrer">
+              <WhatsappLogo size={18} weight="bold" aria-hidden /> {d.detail.ask}
             </a>
-          ) : (
-            <p className="booking-note">{d.detail.contactSoon}</p>
           )}
           <p className="booking-note">{d.detail.note}</p>
         </aside>

@@ -11,6 +11,7 @@
   --navy: #0e396e;
   --gold: #bb9652;
   --gold-deep: #84642a; /* gold for small text on light backgrounds (AA contrast) */
+  --error: #b42318;
   --radius: 4px;
   --gutter: clamp(20px, 5vw, 72px);
   --maxw: 1320px;
@@ -276,6 +277,118 @@ figcaption strong { color: var(--ink); font-size: 0.98rem; }
 .booking-price span { color: var(--ink-soft); }
 .booking-note { font-size: 0.88rem; color: var(--ink-soft); }
 
+.booking-ask { align-self: flex-start; font-size: 0.95rem; }
+
+/* --------------------------- Booking request --------------------------- */
+/* Form page (/villa/x/pesan) and the customer's private status page (/pesanan/<token>). */
+.book-head { display: flex; flex-direction: column; gap: 10px; margin-bottom: clamp(24px, 4vw, 40px); max-width: 62ch; }
+.book-head h1 { font-size: clamp(1.8rem, 3.4vw, 2.8rem); font-weight: 700; color: var(--navy); }
+.book-head p { color: var(--ink-soft); }
+.book-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: clamp(28px, 5vw, 64px); align-items: start; }
+.book-aside { order: 2; position: sticky; top: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.book-photo { aspect-ratio: 4 / 3; }
+.book-item { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.book-item strong { font: 700 1.2rem/1.2 var(--font-display), sans-serif; color: var(--navy); }
+.book-item .text-link { white-space: normal; font-size: 0.92rem; }
+.book-form { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(20px, 3vw, 32px); display: flex; flex-direction: column; gap: 20px; }
+.book-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px 20px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field > span { font-weight: 600; font-size: 0.95rem; }
+.field input, .field textarea {
+  width: 100%; font: 400 1rem/1.4 var(--font-body), system-ui, sans-serif; color: var(--ink);
+  padding: 12px 14px; background: #fff; border: 1px solid #c3cddb; border-radius: var(--radius);
+}
+.field textarea { resize: vertical; min-height: 88px; }
+.field input:focus, .field textarea:focus { border-color: var(--navy); }
+.field [aria-invalid='true'] { border-color: var(--error); }
+.field .optional { font-weight: 400; color: var(--ink-soft); font-size: 0.85rem; }
+.hint { font-size: 0.85rem; color: var(--ink-soft); }
+.field-error { font-style: normal; font-size: 0.88rem; color: var(--error); }
+.notice-error { padding: 12px 14px; border: 1px solid #efc2bd; background: #fdf1f0; color: #8a1c14; border-radius: var(--radius); }
+/* Honeypot: off screen, not display:none (some bots skip hidden fields) */
+.hp { position: absolute; inset-inline-start: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.book-estimate { display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; background: var(--bg); border-radius: var(--radius); }
+.book-estimate-label { font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); }
+.book-estimate strong { font: 700 1.9rem/1.1 var(--font-display), sans-serif; color: var(--navy); }
+.book-estimate-calc { color: var(--ink); }
+.book-estimate small, .book-privacy { font-size: 0.85rem; color: var(--ink-soft); }
+.book-form .btn-block:disabled { opacity: .7; cursor: progress; }
+
+.order-page { max-width: 860px; }
+.order-head { display: flex; flex-direction: column; gap: 12px; margin: 12px 0 28px; max-width: 60ch; }
+.order-head h1 { font-size: clamp(1.8rem, 3.4vw, 2.8rem); font-weight: 700; color: var(--navy); }
+.order-head p { color: var(--ink-soft); }
+.order-icon { color: var(--gold-deep); }
+.order-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(20px, 3vw, 32px); display: flex; flex-direction: column; gap: 20px; }
+.order-code { display: flex; flex-direction: column; gap: 4px; }
+.order-code span { font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); }
+.order-code strong { font: 700 clamp(1.8rem, 4vw, 2.6rem)/1 var(--font-display), sans-serif; color: var(--navy); letter-spacing: 0.02em; }
+.order-facts { margin: 0; }
+.order-facts > div { display: grid; grid-template-columns: 170px 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); }
+.order-facts dt { color: var(--ink-soft); }
+.order-facts dd { margin: 0; }
+.order-facts dd small { color: var(--ink-soft); }
+.order-facts .text-link { white-space: normal; }
+.status { display: inline-block; padding: 3px 10px; border: 1px solid var(--line); border-radius: var(--radius); font-size: 0.9rem; font-weight: 600; }
+.status-pending, .status-awaiting_payment, .status-payment_review { border-color: var(--gold); color: var(--gold-deep); background: #fbf6ec; }
+.status-paid, .status-done { border-color: var(--navy); color: var(--navy); }
+.status-cancelled { color: var(--ink-soft); }
+.order-invoice { margin-top: 20px; }
+.order-invoice h2 { font-size: 1.4rem; color: var(--navy); }
+.invoice-lines { margin: 0; border-top: 1px solid var(--line); }
+.invoice-lines > div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.invoice-lines dt small { color: var(--ink-soft); }
+.invoice-lines dd { margin: 0; white-space: nowrap; }
+.invoice-lines .invoice-total { border-bottom: 0; font: 700 1.35rem/1.2 var(--font-display), sans-serif; color: var(--navy); }
+.pay-box { padding: 20px; background: var(--bg); border-inline-start: 3px solid var(--gold); border-radius: var(--radius); display: flex; flex-direction: column; gap: 12px; }
+.pay-title { font-weight: 700; }
+.pay-box dl { margin: 0; display: grid; gap: 8px; }
+.pay-box dl > div { display: grid; grid-template-columns: 150px 1fr; gap: 12px; }
+.pay-box dt { color: var(--ink-soft); }
+.pay-box dd { margin: 0; font-weight: 600; }
+.pay-number { font: 700 1.3rem/1.2 var(--font-display), sans-serif; letter-spacing: 0.04em; color: var(--navy); user-select: all; }
+.pay-terms h3 { font-size: 1rem; margin-bottom: 6px; color: var(--navy); }
+.pay-terms p { color: var(--ink-soft); font-size: 0.92rem; white-space: pre-line; }
+.proof-box { display: flex; flex-direction: column; gap: 12px; padding-top: 20px; border-top: 1px solid var(--line); }
+.proof-box h3 { font-size: 1.15rem; color: var(--navy); }
+.proof-box > p { color: var(--ink-soft); }
+.proof-upload { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.proof-upload label { cursor: pointer; }
+.proof-upload label.is-busy { opacity: .7; cursor: progress; }
+.proof-upload input:focus-visible + label { outline: 3px solid var(--gold); outline-offset: 3px; }
+.proof-error { color: var(--error); font-weight: 500; }
+.proof-ok { color: var(--navy); font-weight: 500; }
+.proof-error:empty, .proof-ok:empty { display: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.voucher-link { align-self: flex-start; }
+.voucher-page { max-width: 760px; }
+.voucher-actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin: 12px 0 24px; }
+.voucher { background: var(--surface); border: 1px solid var(--line); border-top: 6px solid var(--navy); border-radius: var(--radius); padding: clamp(24px, 4vw, 40px); display: flex; flex-direction: column; gap: 24px; }
+.voucher-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.voucher-logo { width: 200px; height: auto; }
+.voucher-stamp { border: 2px solid var(--gold-deep); color: var(--gold-deep); padding: 6px 16px; border-radius: var(--radius); font: 800 1.1rem/1 var(--font-display), sans-serif; letter-spacing: 0.12em; }
+.voucher-code { display: flex; flex-direction: column; gap: 6px; padding: 20px 0; border-block: 1px dashed var(--line); }
+.voucher-code span { font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); }
+.voucher-code strong { font: 800 clamp(2rem, 6vw, 3.2rem)/1 var(--font-display), sans-serif; color: var(--navy); letter-spacing: 0.04em; }
+.voucher-facts { margin: 0; display: grid; gap: 10px; }
+.voucher-facts > div { display: grid; grid-template-columns: 150px 1fr; gap: 12px; }
+.voucher-facts dt { color: var(--ink-soft); }
+.voucher-facts dd { margin: 0; font-weight: 600; }
+.voucher-facts dd small { font-weight: 400; color: var(--ink-soft); }
+.voucher-foot { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; color: var(--ink-soft); }
+.voucher-foot p:first-child { color: var(--ink); font-weight: 600; }
+/* Printing (or "Save as PDF"): only the voucher, no site header, footer or buttons. */
+@media print {
+  .site-header, .site-footer, .no-print, .skip { display: none !important; }
+  body { background: #fff; }
+  .detail { padding: 0; }
+  .voucher { border-color: #999; break-inside: avoid; }
+  .voucher-code strong, .voucher-stamp { color: #000; border-color: #000; }
+}
+@media (max-width: 600px) { .voucher-facts > div { grid-template-columns: 1fr; gap: 2px; } .voucher-logo { width: 150px; } }
+.order-next { margin-top: 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.order-small { font-size: 0.85rem; color: var(--ink-soft); }
+
 /* ------------------------------- Footer ------------------------------- */
 .site-footer { border-top: 1px solid var(--line); padding: clamp(40px, 6vw, 72px) var(--gutter) 28px; background: var(--surface); }
 .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1.2fr; gap: 40px; max-width: var(--maxw); margin: 0 auto; }
@@ -300,7 +413,11 @@ figcaption strong { color: var(--ink); font-size: 0.98rem; }
   /* Price + WhatsApp stay reachable while scrolling on phones and tablets */
   .booking { position: fixed; inset: auto 0 0 0; z-index: 40; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px; border-width: 1px 0 0; border-radius: 0; padding: 12px var(--gutter); box-shadow: 0 -8px 24px rgba(10, 35, 66, .08); }
   .booking .btn-block { width: auto; padding: 14px 20px; flex: none; }
-  .booking-note { display: none; }
+  .booking-note, .booking-ask { display: none; }
+  .book-grid { grid-template-columns: 1fr; }
+  .book-aside { order: 0; position: static; display: grid; grid-template-columns: 112px 1fr; }
+  .book-aside .book-photo { aspect-ratio: auto; height: 100%; min-height: 112px; }
+  .book-item { padding: 14px 16px; }
   .booking-price { min-width: 0; }
   .booking-price strong { font-size: 1.4rem; }
   .booking .btn-block { white-space: nowrap; }
@@ -328,6 +445,7 @@ figcaption strong { color: var(--ink); font-size: 0.98rem; }
   .gallery-multi .gallery-main { grid-column: 1 / -1; grid-row: auto; aspect-ratio: 16 / 10; min-height: 0; }
   .gallery-more { grid-template-columns: 1fr 1fr; }
   .footer-grid { grid-template-columns: 1fr; }
+  .order-facts > div, .pay-box dl > div { grid-template-columns: 1fr; gap: 2px; }
 }
 @media (max-width: 600px) {
   /* the phone's own toolbar (about 84px, floating or not) covers the bottom of a full-height hero */

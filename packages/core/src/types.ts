@@ -68,7 +68,12 @@ export type TestimonialInput = Omit<Testimonial, 'id' | 'sortOrder'>;
  * heroImages holds one photo URL per line, in display order (first = main photo).  
  * heroImagesMobile is the optional portrait set for tall screens (phones held upright): photo N replaces
  * photo N of heroImages there, and a missing one falls back to the wide photo.
+ * bankName / bankAccount / bankHolder: where customers transfer booking payments (shown on the invoice).
+ * paymentTerms: the payment and cancellation rules printed on every invoice.
  */
-export const SETTING_KEYS = ['whatsapp', 'email', 'address', 'instagram', 'heroImages', 'heroImagesMobile', 'mapsUrl'] as const;
+export const SETTING_KEYS = [
+  'whatsapp', 'email', 'address', 'instagram', 'heroImages', 'heroImagesMobile', 'mapsUrl',
+  'bankName', 'bankAccount', 'bankHolder', 'paymentTerms',
+] as const;
 export type SettingKey = (typeof SETTING_KEYS)[number];
 export type Settings = Record<SettingKey, string>;

@@ -4,10 +4,10 @@ import { SITE_URL } from '@/lib/site';
 // Built per request so the sitemap link follows the SITE_URL of the running server, not the one at build time.
 export const dynamic = 'force-dynamic';
 
-// The admin panel is a separate site and is not served from here.
+// The admin panel is a separate site and is not served from here. /pesanan/<token> are private booking pages.
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [{ userAgent: '*', allow: '/', disallow: ['/api/', '/admin/'] }],
+    rules: [{ userAgent: '*', allow: '/', disallow: ['/api/', '/admin/', '/pesanan/', '/en/pesanan/', '/ar/pesanan/'] }],
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

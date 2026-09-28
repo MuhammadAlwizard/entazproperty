@@ -35,3 +35,13 @@ export function splitAt(text: string, marker: string): [string, string] {
   const i = text.indexOf(marker);
   return i === -1 ? [text, ''] : [text.slice(0, i), text.slice(i + marker.length)];
 }
+
+/** A calendar day (YYYY-MM-DD, no time zone) such as a booking date, in the reader's language. */
+export function formatDay(locale: Locale, iso: string): string {
+  return new Intl.DateTimeFormat(LOCALE_META[locale].dateLocale, { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
+}
+
+/** "3 Okt 2026 - 6 Okt 2026", or one day when there is no end date. */
+export function formatDayRange(locale: Locale, start: string, end: string | null): string {
+  return end && end !== start ? `${formatDay(locale, start)} - ${formatDay(locale, end)}` : formatDay(locale, start);
+}

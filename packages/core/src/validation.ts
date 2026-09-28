@@ -1,5 +1,9 @@
 import { CATEGORY_CONFIG, MAX_LISTING_IMAGES, TRANSLATION_LANGS, isCategory, translatableMetaFields, type Category } from './categories';
-import { VALIDATION_ID, fillMessage, type ValidationMessages } from './messages';
+import { BOOKING_ID, INVOICE_ID, VALIDATION_ID, fillMessage, type BookingMessages, type InvoiceMessages, type ValidationMessages } from './messages';
+import {
+  BOOKING_MAX_DAYS_AHEAD, BOOKING_MAX_GUESTS, BOOKING_MAX_RANGE, MAX_EXTRA_ITEMS, bookingShape, bookingUnits, daysBetween, invoiceTotal,
+  isIsoDate, todayWib, type ExtraItem,
+} from './booking-rules';
 import type { ListingInput, ListingTranslations, TestimonialInput, TestimonialTranslations } from './types';
 
 // Business rules for content live here so the admin form and any future
@@ -146,4 +150,114 @@ export function validateTestimonial(raw: Record<string, unknown>, opts: Pick<Val
   }
   if (Object.keys(errors).length) return { ok: false, errors };
   return { ok: true, data: { name, quote, origin, photo, translations, rating, published: raw.published === 'on' || raw.published === true } };
+}
+
+/* ------------------------------ Bookings ------------------------------ */
+
+export type BookingInput = {
+  startDate: string;
+  endDate: string | null;
+  guests: number;
+  /** nights, days or people, see bookingUnits */
+  units: number;
+  name: string;
+  phone: string;
+  email: string;
+  note: string;
+};
+
+/** Phone as typed, reduced to digits with an optional leading +. 0812... stays as it is, the admin reads it. */
+export function cleanPhone(v: string): string {
+  const t = v.trim();
+  return (t.startsWith('+') ? '+' : '') + t.replace(/\D/g, '');
+}
+
+/**
+ * A booking request from the public form. `listing` decides which fields apply (see bookingShape);
+ * `minGuests` is the tour's minimum group size, when the admin set one.
+ */
+export function validateBooking(
+  raw: Record<string, unknown>,
+  listing: { category: Category; minGuests?: number },
+  /** allowPast: an admin recording a booking after the fact (walk-in yesterday) may use past dates. */
+  opts: { messages?: BookingMessages; now?: number; allowPast?: boolean } = {},
+): Result<BookingInput> {
+  const m = opts.messages ?? BOOKING_ID;
+  const errors: Errors = {};
+  const shape = bookingShape(listing.category);
+  const today = todayWib(opts.now);
+
+  const name = str(raw.name).replace(/\s+/g, ' ');
+  if (name.length < 2) errors.name = m.nameMin;
+  else if (name.length > 80) errors.name = m.nameMax;
+
+  const phone = cleanPhone(str(raw.phone));
+  if (!/^\+?\d{8,15}$/.test(phone)) errors.phone = m.phoneInvalid;
+
+  const email = str(raw.email).toLowerCase();
+  if (email && (email.length > 200 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) errors.email = m.emailInvalid;
+
+  const startDate = str(raw.startDate);
+  if (!isIsoDate(startDate)) errors.startDate = m.dateInvalid;
+  else if (startDate < today && !opts.allowPast) errors.startDate = m.datePast;
+  else if (daysBetween(today, startDate) > BOOKING_MAX_DAYS_AHEAD) errors.startDate = fillMessage(m.dateTooFar, { days: BOOKING_MAX_DAYS_AHEAD });
+
+  let endDate: string | null = null;
+  if (shape.end) {
+    endDate = str(raw.endDate);
+    if (!isIsoDate(endDate)) errors.endDate = m.dateInvalid;
+    else if (!errors.startDate) {
+      const diff = daysBetween(startDate, endDate);
+      if (listing.category === 'villa' ? diff < 1 : diff < 0) errors.endDate = m.endBeforeStart;
+      else if (diff > BOOKING_MAX_RANGE) errors.endDate = fillMessage(m.rangeTooLong, { max: BOOKING_MAX_RANGE });
+    }
+  }
+
+  let guests = 1;
+  if (shape.guests) {
+    const g = str(raw.guests);
+    guests = /^\d{1,2}$/.test(g) ? Number(g) : 0;
+    if (guests < 1 || guests > BOOKING_MAX_GUESTS) errors.guests = m.guestsInvalid;
+    else if (listing.category === 'tour' && listing.minGuests && guests < listing.minGuests) errors.guests = fillMessage(m.guestsMin, { min: listing.minGuests });
+  }
+
+  const note = str(raw.note);
+  if (note.length > 500) errors.note = m.noteMax;
+
+  if (Object.keys(errors).length) return { ok: false, errors };
+  return {
+    ok: true,
+    data: { startDate, endDate, guests, units: bookingUnits(listing.category, startDate, endDate, guests), name, phone, email, note },
+  };
+}
+
+export type InvoiceInput = { unitPrice: number; units: number; extras: ExtraItem[]; total: number };
+
+/**
+ * The admin's invoice form: price per unit, number of units, and up to MAX_EXTRA_ITEMS extra lines
+ * (extra_label_N / extra_amount_N; a negative amount is a discount). Blank lines are skipped.
+ */
+export function validateInvoice(raw: Record<string, unknown>, opts: { messages?: InvoiceMessages } = {}): Result<InvoiceInput> {
+  const m = opts.messages ?? INVOICE_ID;
+  const errors: Errors = {};
+  const unitPrice = parsePrice(raw.unitPrice);
+  if (Number.isNaN(unitPrice) || unitPrice > 1_000_000_000) errors.unitPrice = m.priceNumber;
+  const unitsRaw = str(raw.units);
+  const units = /^\d{1,3}$/.test(unitsRaw) ? Number(unitsRaw) : 0;
+  if (units < 1) errors.units = m.unitsNumber;
+
+  const extras: ExtraItem[] = [];
+  for (let i = 0; i < MAX_EXTRA_ITEMS; i++) {
+    const label = str(raw[`extra_label_${i}`]);
+    const amountRaw = str(raw[`extra_amount_${i}`]).replace(/[\s.,]/g, '');
+    if (!label && !amountRaw) continue;
+    if (!label || label.length > 80) errors[`extra_label_${i}`] = m.extraLabel;
+    if (!/^-?\d{1,10}$/.test(amountRaw)) errors[`extra_amount_${i}`] = m.extraAmount;
+    else extras.push({ label, amount: Number(amountRaw) });
+  }
+
+  if (Object.keys(errors).length) return { ok: false, errors };
+  const total = invoiceTotal(unitPrice, units, extras);
+  if (total <= 0) return { ok: false, errors: { total: m.totalZero } };
+  return { ok: true, data: { unitPrice, units, extras, total } };
 }

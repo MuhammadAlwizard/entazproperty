@@ -47,6 +47,61 @@ export type PasswordMessages = {
 
 export type UploadMessages = { tooLarge: string; badFormat: string };
 
+export type BookingMessages = {
+  nameMin: string;
+  nameMax: string;
+  phoneInvalid: string;
+  emailInvalid: string;
+  dateInvalid: string;
+  datePast: string;
+  /** {days} */
+  dateTooFar: string;
+  /** Villa: check-out must be after check-in. Vehicles: return cannot be before pickup. */
+  endBeforeStart: string;
+  /** {max} */
+  rangeTooLong: string;
+  guestsInvalid: string;
+  /** {min} */
+  guestsMin: string;
+  noteMax: string;
+  tooMany: string;
+};
+
+export type InvoiceMessages = {
+  priceNumber: string;
+  unitsNumber: string;
+  /** {max} */
+  extrasMax: string;
+  extraLabel: string;
+  extraAmount: string;
+  totalZero: string;
+};
+
+export const INVOICE_ID: InvoiceMessages = {
+  priceNumber: 'Isi harga dengan angka.',
+  unitsNumber: 'Isi jumlah dengan angka 1 sampai 999.',
+  extrasMax: 'Maksimal {max} biaya tambahan.',
+  extraLabel: 'Tulis nama biayanya.',
+  extraAmount: 'Isi nominal dengan angka. Pakai tanda minus untuk potongan harga.',
+  totalZero: 'Total tagihan tidak boleh nol.',
+};
+
+export const BOOKING_ID: BookingMessages = {
+  nameMin: 'Nama minimal 2 karakter.',
+  nameMax: 'Nama maksimal 80 karakter.',
+  phoneInvalid: 'Isi nomor WhatsApp yang valid, contoh 0812 3456 7890.',
+  emailInvalid: 'Format email tidak valid.',
+  dateInvalid: 'Pilih tanggal.',
+  datePast: 'Tanggal tidak boleh sebelum hari ini.',
+  dateTooFar: 'Pemesanan paling jauh {days} hari dari sekarang.',
+  endBeforeStart: 'Tanggal selesai harus setelah tanggal mulai.',
+  rangeTooLong: 'Maksimal {max} hari per pemesanan. Untuk lebih lama, hubungi kami lewat WhatsApp.',
+  guestsInvalid: 'Isi jumlah orang dengan angka 1 sampai 99.',
+  guestsMin: 'Paket ini minimal {min} orang.',
+  noteMax: 'Catatan maksimal 500 karakter.',
+  tooMany: 'Terlalu banyak pemesanan dari perangkat atau nomor ini. Coba lagi nanti atau hubungi kami lewat WhatsApp.',
+};
+
 export const VALIDATION_ID: ValidationMessages = {
   chooseCategory: 'Pilih kategori.',
   titleMin: 'Nama listing minimal 3 karakter.',

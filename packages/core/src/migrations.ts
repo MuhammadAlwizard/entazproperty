@@ -130,6 +130,89 @@ export const MIGRATIONS: { id: string; statements: Step[] }[] = [
       addColumnIfMissing('testimonials', 'translations', 'LONGTEXT NULL'),
     ],
   },
+  {
+    // Booking requests from the public site. The listing is copied (title, price) so a booking still reads
+    // correctly after the listing is edited or deleted, hence no foreign key on listing_id.
+    // access_token is the secret in the customer's link (/pesanan/<token>). The public app only needs
+    // SELECT and INSERT on this table; status changes happen in the admin panel.
+    id: '003_bookings',
+    statements: [
+      `CREATE TABLE IF NOT EXISTS bookings (
+        id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        code VARCHAR(20) NOT NULL,
+        access_token CHAR(32) NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'pending',
+        listing_id INT UNSIGNED NULL,
+        category VARCHAR(10) NOT NULL,
+        listing_title VARCHAR(160) NOT NULL,
+        listing_slug VARCHAR(120) NOT NULL DEFAULT '',
+        unit_price INT UNSIGNED NOT NULL,
+        units SMALLINT UNSIGNED NOT NULL,
+        start_date DATE NOT NULL,
+        end_date DATE NULL,
+        guests SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+        customer_name VARCHAR(120) NOT NULL,
+        phone VARCHAR(20) NOT NULL,
+        email VARCHAR(200) NOT NULL DEFAULT '',
+        note TEXT NOT NULL,
+        locale VARCHAR(5) NOT NULL DEFAULT 'id',
+        ip VARCHAR(64) NOT NULL DEFAULT '',
+        created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+        updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+        UNIQUE KEY uq_bookings_code (code),
+        UNIQUE KEY uq_bookings_token (access_token),
+        KEY idx_bookings_status (status, created_at),
+        KEY idx_bookings_ip (ip, created_at),
+        KEY idx_bookings_phone (phone, created_at)
+      ) ${TABLE_OPTIONS}`,
+    ],
+  },
+  {
+    // The invoice the admin issues when confirming a booking. extra_items is JSON: [{ label, amount }], where a
+    // negative amount is a discount. total is NULL until the admin confirms (the customer then only sees an estimate).
+    // admin_note is private to the panel; public_note is shown on the customer's page (for example why it was cancelled).
+    id: '004_booking_invoice',
+    statements: [
+      addColumnIfMissing('bookings', 'extra_items', 'LONGTEXT NULL'),
+      addColumnIfMissing('bookings', 'total', 'INT UNSIGNED NULL'),
+      addColumnIfMissing('bookings', 'admin_note', 'TEXT NULL'),
+      addColumnIfMissing('bookings', 'public_note', "VARCHAR(500) NOT NULL DEFAULT ''"),
+      addColumnIfMissing('bookings', 'confirmed_at', 'DATETIME(3) NULL'),
+      addColumnIfMissing('bookings', 'paid_at', 'DATETIME(3) NULL'),
+    ],
+  },
+  {
+    // Transfer screenshots (or PDF receipts) uploaded by customers. Kept apart from `uploads`, which the public
+    // site serves to anyone: these hold names and account numbers and are only ever served to a signed-in admin.
+    // The public app INSERTs here and never updates bookings; "proof received" is derived from review = 'new'.
+    id: '005_payment_proofs',
+    statements: [
+      `CREATE TABLE IF NOT EXISTS payment_proofs (
+        id CHAR(36) NOT NULL PRIMARY KEY,
+        booking_id INT UNSIGNED NOT NULL,
+        ext VARCHAR(4) NOT NULL,
+        mime VARCHAR(30) NOT NULL,
+        bytes LONGBLOB NOT NULL,
+        size INT UNSIGNED NOT NULL,
+        review VARCHAR(10) NOT NULL DEFAULT 'new',
+        reject_reason VARCHAR(300) NOT NULL DEFAULT '',
+        ip VARCHAR(64) NOT NULL DEFAULT '',
+        created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+        reviewed_at DATETIME(3) NULL,
+        KEY idx_payment_proofs_booking (booking_id, review),
+        CONSTRAINT fk_payment_proofs_booking FOREIGN KEY (booking_id) REFERENCES bookings (id) ON DELETE CASCADE
+      ) ${TABLE_OPTIONS}`,
+    ],
+  },
+  {
+    // Where a booking came from: 'web' (the public form) or entered by an admin for a WhatsApp, phone or walk-in
+    // customer, so revenue reports cover every booking and not only the website ones.
+    id: '006_booking_source',
+    statements: [
+      addColumnIfMissing('bookings', 'source', "VARCHAR(12) NOT NULL DEFAULT 'web'"),
+      addColumnIfMissing('bookings', 'created_by', "VARCHAR(200) NOT NULL DEFAULT ''"),
+    ],
+  },
 ];
 
 /** Applies pending migrations in order. Safe to run repeatedly and from two apps at once. Returns the ids it applied. */

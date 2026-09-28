@@ -53,6 +53,32 @@ export function SettingsForm({ settings, action }: { settings: Settings; action:
       </fieldset>
 
       <fieldset className="group">
+        <legend>{t.payment.legend}</legend>
+        <p className="hint" style={{ marginTop: -6 }}>{t.payment.hint}</p>
+        <label className="field">
+          <span>{t.payment.bankName}</span>
+          <input name="bankName" maxLength={40} defaultValue={settings.bankName} placeholder="Mandiri" aria-invalid={!!err.bankName} />
+          {err.bankName && <em className="field-error">{err.bankName}</em>}
+        </label>
+        <label className="field">
+          <span>{t.payment.bankAccount}</span>
+          <input name="bankAccount" inputMode="numeric" dir="ltr" maxLength={40} defaultValue={settings.bankAccount} aria-invalid={!!err.bankAccount} />
+          {err.bankAccount && <em className="field-error">{err.bankAccount}</em>}
+        </label>
+        <label className="field">
+          <span>{t.payment.bankHolder}</span>
+          <input name="bankHolder" maxLength={80} defaultValue={settings.bankHolder} aria-invalid={!!err.bankHolder} />
+          {err.bankHolder && <em className="field-error">{err.bankHolder}</em>}
+        </label>
+        <label className="field">
+          <span>{t.payment.terms}</span>
+          <textarea name="paymentTerms" rows={4} maxLength={1500} defaultValue={settings.paymentTerms} aria-invalid={!!err.paymentTerms} />
+          <small className="hint">{t.payment.termsHint}</small>
+          {err.paymentTerms && <em className="field-error">{err.paymentTerms}</em>}
+        </label>
+      </fieldset>
+
+      <fieldset className="group">
         <legend>{t.hero.legend}</legend>
         <p className="hint" style={{ marginTop: -6 }}>{t.hero.hint}</p>
         <ImageUploader

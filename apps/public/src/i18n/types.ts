@@ -1,9 +1,11 @@
 import type { Category } from '@enjaz/core/categories';
+import type { BookingStatus } from '@enjaz/core/booking-rules';
+import type { BookingMessages } from '@enjaz/core/messages';
 
 /** Plural forms. Indonesian uses `other` only, English `one`/`other`, Arabic all of them. */
 export type Forms = { one: string; two?: string; few?: string; many?: string; other: string };
 
-export type PluralKey = 'villa' | 'mobil' | 'motor' | 'paket' | 'kamar' | 'tamu' | 'kursi' | 'cc' | 'orang';
+export type PluralKey = 'villa' | 'mobil' | 'motor' | 'paket' | 'kamar' | 'tamu' | 'kursi' | 'cc' | 'orang' | 'malam' | 'hari';
 
 export type CategoryText = { name: string; title: string; description: string; intro: string; empty: string };
 
@@ -25,12 +27,30 @@ export type Dict = {
   office: { title: string; openMaps: string; mapTitle: string };
   detail: {
     crumbs: string; home: string; specs: string; amenities: string; included: string; location: string; openMaps: string;
-    mapTitle: string; photoAlt: string; morePhotos: string; noPhoto: string; aside: string; book: string; bookRest: string;
-    contactSoon: string; note: string;
+    mapTitle: string; photoAlt: string; morePhotos: string; noPhoto: string; aside: string; bookNow: string; ask: string;
+    note: string;
     autoDescription: (label: string, where: string, price: string, unit: string) => string;
     priceRange: (price: string, unit: string) => string;
   };
+  booking: {
+    title: string; intro: string; back: string; form: string;
+    startVilla: string; endVilla: string; startVehicle: string; endVehicle: string; startTour: string;
+    guestsVilla: string; guestsTour: string; minGuests: string;
+    name: string; phone: string; phoneHint: string; email: string; optional: string; note: string; notePlaceholder: string;
+    estimate: string; estimateEmpty: string; estimateNote: string; submit: string; sending: string; privacy: string; formError: string;
+    errors: BookingMessages;
+    doneTitle: string; doneText: string; number: string; status: string; statuses: Record<BookingStatus, string>;
+    item: string; dates: string; people: string; keepLink: string; sendWa: string; waHint: string; noWa: string;
+    invoice: string; base: string; total: string; payTo: string; bank: string; account: string; holder: string;
+    payHint: string; noBank: string; terms: string; paid: string; reason: string;
+    proof: {
+      title: string; text: string; hint: string; choose: string; send: string; sending: string; sent: string;
+      reviewTitle: string; reviewText: string; again: string; rejected: string; rejectedNoReason: string; tellWa: string;
+      tooLarge: string; badFormat: string; tooMany: string; closed: string; failed: string;
+    };
+    voucher: { title: string; open: string; print: string; show: string; paid: string; paidOn: string; customer: string; notReady: string; back: string };
+  };
   footer: { services: string; contact: string; contactSoon: string; language: string };
   notFound: { title: string; text: string; back: string };
-  wa: { general: string; interested: (title: string, where: string, url: string) => string };
+  wa: { general: string; interested: (title: string, where: string, url: string) => string; booking: (code: string, title: string) => string; transferred: (code: string) => string };
 };

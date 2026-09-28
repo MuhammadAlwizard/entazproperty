@@ -1,19 +1,19 @@
 import { ArrowSquareOut, SignOut } from '@phosphor-icons/react/dist/ssr';
 import { redirect } from 'next/navigation';
+import { countBookingsNeedingAction } from '@enjaz/core';
 import { getSession } from '@/lib/auth';
 import { getI18n } from '@/i18n/server';
 import { logout } from '../login/actions';
 import { LangSwitch } from '@/components/LangSwitch';
 import { SideNav } from '@/components/SideNav';
-
-const PUBLIC_URL = process.env.PUBLIC_SITE_URL ?? process.env.SITE_URL ?? 'http://localhost:3100';
+import { PUBLIC_URL } from '@/lib/public-url';
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   // Only checks that someone is signed in. Each page enforces the rest (see requireAdmin), otherwise
   // an admin who must change the first password would be redirected in a loop.
   const session = await getSession();
   if (!session) redirect('/login');
-  const { d } = await getI18n();
+  const [{ d }, bookingsToCheck] = await Promise.all([getI18n(), countBookingsNeedingAction()]);
   return (
     <div className="shell">
       <aside className="sidebar">
@@ -24,7 +24,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
             <small>{d.brand.subtitle}</small>
           </div>
         </div>
-        <SideNav />
+        <SideNav bookingsToCheck={bookingsToCheck} />
         <div className="sidebar-foot">
           <LangSwitch />
           <a href={PUBLIC_URL} target="_blank" rel="noopener noreferrer" className="side-link">

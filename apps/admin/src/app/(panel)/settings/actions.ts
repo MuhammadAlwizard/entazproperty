@@ -25,7 +25,12 @@ export async function saveSettingsAction(_prev: FormState, fd: FormData): Promis
   const heroImages = parseHeroImages(fd.getAll('heroImages').filter((v): v is string => typeof v === 'string').join('\n'));
   const heroImagesMobile = parseHeroImages(fd.getAll('heroImagesMobile').filter((v): v is string => typeof v === 'string').join('\n'));
 
-  const badNumber = whatsappLines.find((n) => !/^\+?\d[\d\s-]{7,18}$/.test(n) || normalizeWhatsapp(n).length > 15);
+  const bankName = s(fd, 'bankName');
+  const bankAccount = s(fd, 'bankAccount').replace(/[\s-]/g, '');
+  const bankHolder = s(fd, 'bankHolder');
+  const paymentTerms = s(fd, 'paymentTerms');
+
+  const badNumber =whatsappLines.find((n) => !/^\+?\d[\d\s-]{7,18}$/.test(n) || normalizeWhatsapp(n).length > 15);
   if (badNumber) errors.whatsapp = fill(e.whatsappBad, { n: badNumber });
   else if (whatsappLines.length > 5) errors.whatsapp = e.whatsappMax;
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = e.emailBad;
@@ -38,10 +43,18 @@ export async function saveSettingsAction(_prev: FormState, fd: FormData): Promis
   if (heroImagesMobile.length > MAX_HERO_IMAGES) errors.heroImagesMobile = fill(e.heroMobileMax, { max: MAX_HERO_IMAGES });
   else if (heroImagesMobile.some((u) => !isSafeImage(u))) errors.heroImagesMobile = e.heroBad;
 
+  if (bankName.length > 40) errors.bankName = e.bankNameMax;
+  if (bankAccount && !/^\d{5,30}$/.test(bankAccount)) errors.bankAccount = e.bankAccountBad;
+  if (bankHolder.length > 80) errors.bankHolder = e.bankHolderMax;
+  if (paymentTerms.length > 1500) errors.paymentTerms = e.termsMax;
+
   if (Object.keys(errors).length) return { errors, formError: d.common.formError };
   // Stored one per line, always as +<country code><number>. The first line is the primary contact.
   const whatsapp = [...new Set(whatsappLines.map((n) => `+${normalizeWhatsapp(n)}`))].join('\n');
-  await saveSettings({ whatsapp, email, instagram, address, mapsUrl, heroImages: heroImages.join('\n'), heroImagesMobile: heroImagesMobile.join('\n') });
+  await saveSettings({
+    whatsapp, email, instagram, address, mapsUrl, heroImages: heroImages.join('\n'), heroImagesMobile: heroImagesMobile.join('\n'),
+    bankName, bankAccount, bankHolder, paymentTerms,
+  });
   await logAudit({ email: session.email, action: 'settings.update', ip: await getClientIp() });
   return { ok: d.settings.saved };
 }

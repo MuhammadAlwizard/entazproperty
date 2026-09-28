@@ -11,3 +11,6 @@ export { closePool } from './db';
 export { migrate } from './migrations';
 export { bootstrap } from './bootstrap';
 export * from './localize';
+export * from './booking-rules';
+export * from './bookings';
+export * from './proofs';

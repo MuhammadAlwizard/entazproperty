@@ -56,8 +56,8 @@ export function proxy(req: NextRequest) {
 export const config = {
   matcher: [
     {
-      // Pages only: uploads, static assets, robots and the sitemap are served as they are.
-      source: '/((?!uploads|_next/static|_next/image|icon.png|logo-.*\\.png|og.png|robots.txt|sitemap.xml).*)',
+      // Pages only: uploads, the API (transfer proof upload), static assets, robots and the sitemap are served as they are.
+      source: '/((?!uploads|api/|_next/static|_next/image|icon.png|logo-.*\\.png|og.png|robots.txt|sitemap.xml).*)',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' },
